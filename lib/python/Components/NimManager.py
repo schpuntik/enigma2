@@ -20,6 +20,7 @@ from datetime import datetime
 from Tools import Directories
 import xml.etree.cElementTree
 
+
 def getConfigSatlist(orbpos, satlist):
 	default_orbpos = None
 	for x in satlist:
@@ -325,16 +326,19 @@ class SecConfigure:
 				if self.linked.has_key(slotid):
 					for slot in self.linked[slotid]:
 						tunermask |= (1 << slot)
-
-				if currLnb.lof.value != "unicable":
+				if currLnb.lof.value != "unicable" and currLnb.lof.value != "jess":
 					sec.setLNBSatCR(-1)
 
 				if currLnb.lof.value == "universal_lnb":
 					sec.setLNBLOFL(9750000)
 					sec.setLNBLOFH(10600000)
 					sec.setLNBThreshold(11700000)
-				elif currLnb.lof.value == "unicable":
+				elif currLnb.lof.value == "unicable" or currLnb.lof.value == "jess":
 					def setupUnicable(configManufacturer, ProductDict):
+						if currLnb.lof.value == "jess":
+							sec.setLNBSatCRformat(1)	#JESS
+						else:
+							sec.setLNBSatCRformat(0)	#DiSEqC
 						manufacturer_name = configManufacturer.value
 						manufacturer = ProductDict[manufacturer_name]
 						product_name = manufacturer.product.value
@@ -1144,6 +1148,7 @@ def InitNimManager(nimmgr, update_slots = []):
 	lnb_choices = {
 		"universal_lnb": _("Universal LNB"),
 		"unicable": _("Unicable"),
+		"jess": _("JESS"),
 		"c_band": _("C-Band"),
 		"circular_lnb": _("Circular LNB"),
 		"user_defined": _("User defined")}
@@ -1160,7 +1165,9 @@ def InitNimManager(nimmgr, update_slots = []):
 		m={}
 		for product in manufacturer.getchildren():
 			scr=[]
-			lscr=("scr1","scr2","scr3","scr4","scr5","scr6","scr7","scr8")
+			lscr=("scr1","scr2","scr3","scr4","scr5","scr6","scr7","scr8","scr9","scr10","scr11",
+			"scr12","scr13","scr14","scr15","scr16","scr17","scr18","scr19","scr20","scr21","scr22",
+			"scr23","scr24","scr25","scr26","scr27","scr28","scr29","scr30","scr31","scr32")
 			for i in range(len(lscr)):
 				scr.append(product.get(lscr[i],"0"))
 			for i in range(len(lscr)):
@@ -1173,6 +1180,7 @@ def InitNimManager(nimmgr, update_slots = []):
 			lof.append(int(product.get("lofl",9750)))
 			lof.append(int(product.get("lofh",10600)))
 			lof.append(int(product.get("threshold",11700)))
+			scr.append(product.get("format","DiSEqC"))
 			scr.append(tuple(lof))
 			m.update({product.get("name"):tuple(scr)})
 		unicablelnbproducts.update({manufacturer.get("name"):m})
@@ -1182,7 +1190,9 @@ def InitNimManager(nimmgr, update_slots = []):
 		m={}
 		for product in manufacturer.getchildren():
 			scr=[]
-			lscr=("scr1","scr2","scr3","scr4","scr5","scr6","scr7","scr8")
+			lscr=("scr1","scr2","scr3","scr4","scr5","scr6","scr7","scr8","scr9","scr10","scr11",
+			"scr12","scr13","scr14","scr15","scr16","scr17","scr18","scr19","scr20","scr21","scr22",
+			"scr23","scr24","scr25","scr26","scr27","scr28","scr29","scr30","scr31","scr32")
 			for i in range(len(lscr)):
 				scr.append(product.get(lscr[i],"0"))
 			for i in range(len(lscr)):
@@ -1195,6 +1205,7 @@ def InitNimManager(nimmgr, update_slots = []):
 			lof.append(int(product.get("lofl",9750)))
 			lof.append(int(product.get("lofh",10600)))
 			lof.append(int(product.get("threshold",11700)))
+			scr.append(product.get("format","DiSEqC"))
 			scr.append(tuple(lof))
 			m.update({product.get("name"):tuple(scr)})
 		unicablematrixproducts.update({manufacturer.get("name"):m})
@@ -1209,9 +1220,6 @@ def InitNimManager(nimmgr, update_slots = []):
 		"unicable_matrix": _("Unicable Martix"),
 		"unicable_user": "Unicable "+_("User defined")}
 	unicable_choices_default = "unicable_lnb"
-
-	advanced_lnb_satcruser_choices = [ ("1", "SatCR 1"), ("2", "SatCR 2"), ("3", "SatCR 3"), ("4", "SatCR 4"),
-					("5", "SatCR 5"), ("6", "SatCR 6"), ("7", "SatCR 7"), ("8", "SatCR 8")]
 
 	prio_list = [ ("-1", _("Auto")) ]
 	for prio in range(65)+range(14000,14065)+range(19000,19065):
@@ -1262,12 +1270,69 @@ def InitNimManager(nimmgr, update_slots = []):
 	advanced_lnb_fast_turning_etime = mktime(datetime(1970, 1, 1, 19, 0).timetuple());
 
 	def configLOFChanged(configElement):
-		if configElement.value == "unicable":
+		if configElement.value == "unicable" or configElement.value == "jess":
 			x = configElement.slot_id
 			lnb = configElement.lnb_id
 			nim = config.Nims[x]
 			lnbs = nim.advanced.lnb
 			section = lnbs[lnb]
+
+			if configElement.value == "jess":
+				advanced_lnb_satcruser_choices = [ ("1", "ID 1"), ("2", "ID 2"), ("3", "ID 3"), ("4", "ID 4"),
+					("5", "ID 5"), ("6", "ID 6"), ("7", "ID 7"), ("8", "ID 8"),("9", "ID 9"), ("10", "ID 10"), ("11", "ID 11"), ("12", "ID 12"),
+					("13", "ID 13"), ("14", "ID 14"), ("15", "ID 15"), ("16", "ID 16"),("17", "ID 17"), ("18", "ID 18"), ("19", "ID 19"), ("20", "ID 20"),
+					("21", "ID 21"), ("22", "ID 22"), ("23", "ID 23"), ("24", "ID 24"),("25", "ID 25"), ("26", "ID 26"), ("27", "ID 27"), ("28", "ID 28"),
+					("29", "ID 29"), ("30", "ID 30"), ("31", "ID 31"), ("32", "ID 32")]
+			else:
+				advanced_lnb_satcruser_choices = [ ("1", "ID 1"), ("2", "ID 2"), ("3", "ID 3"), ("4", "ID 4"),
+					("5", "ID 5"), ("6", "ID 6"), ("7", "ID 7"), ("8", "ID8")]
+			
+			section.satcruser = ConfigSelection(advanced_lnb_satcruser_choices, default="1")
+			tmp = ConfigSubList()
+			if configElement.value == "jess":
+				tmp.append(ConfigInteger(default=974, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1076, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1178, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1280, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1382, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1484, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1586, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1688, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1790, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1892, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1994, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=2096, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=974, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1076, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1178, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1280, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1382, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1484, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1586, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1688, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1790, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1892, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1994, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=2096, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=974, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1076, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1178, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1280, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1382, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1484, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1586, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1586, limits = (950, 2150)))
+			else:
+				tmp.append(ConfigInteger(default=1284, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1400, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1516, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1632, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1748, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1864, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=1980, limits = (950, 2150)))
+				tmp.append(ConfigInteger(default=2096, limits = (950, 2150)))
+			section.satcrvcouser = tmp
+			
 			if isinstance(section.unicable, ConfigNothing):
 				if lnb == 1:
 					section.unicable = ConfigSelection(unicable_choices, unicable_choices_default)
@@ -1288,34 +1353,37 @@ def InitNimManager(nimmgr, update_slots = []):
 						tmp.lofh = ConfigSubDict()
 						tmp.loft = ConfigSubDict()
 						tmp.positions = ConfigSubDict()
+						tmp.format = ConfigSubDict()
 						for z in products:
 							scrlist = []
 							vcolist = unicableproducts[y][z]
 							tmp.vco[z] = ConfigSubList()
-							for cnt in range(1,1+len(vcolist)-1):
+							for cnt in range(1,len(vcolist)-1):
 								vcofreq = int(vcolist[cnt-1])
 								if vcofreq == 0 and vco_null_check:
-									scrlist.append(("%d" %cnt,"SCR %d " %cnt +_("not used")))
+									scrlist.append(("%d" %cnt,"ID %d " %cnt +_("not used")))
 								else:
-									scrlist.append(("%d" %cnt,"SCR %d" %cnt))
+									scrlist.append(("%d" %cnt,"ID %d" %cnt))
 								tmp.vco[z].append(ConfigInteger(default=vcofreq, limits = (vcofreq, vcofreq)))
 								tmp.scr[z] = ConfigSelection(choices = scrlist, default = scrlist[0][0])
 
-								positions = int(vcolist[len(vcolist)-1][0])
-								tmp.positions[z] = ConfigSubList()
-								tmp.positions[z].append(ConfigInteger(default=positions, limits = (positions, positions)))
+							format = [vcolist[len(vcolist)-2]]
+							tmp.format[z] = ConfigSelection(choices = format, default = format)
+							positions = int(vcolist[len(vcolist)-1][0])
+							tmp.positions[z] = ConfigSubList()
+							tmp.positions[z].append(ConfigInteger(default=positions, limits = (positions, positions)))
 
-								lofl = vcolist[len(vcolist)-1][1]
-								tmp.lofl[z] = ConfigSubList()
-								tmp.lofl[z].append(ConfigInteger(default=lofl, limits = (lofl, lofl)))
+							lofl = vcolist[len(vcolist)-1][1]
+							tmp.lofl[z] = ConfigSubList()
+							tmp.lofl[z].append(ConfigInteger(default=lofl, limits = (lofl, lofl)))
 
-								lofh = int(vcolist[len(vcolist)-1][2])
-								tmp.lofh[z] = ConfigSubList()
-								tmp.lofh[z].append(ConfigInteger(default=lofh, limits = (lofh, lofh)))
+							lofh = int(vcolist[len(vcolist)-1][2])
+							tmp.lofh[z] = ConfigSubList()
+							tmp.lofh[z].append(ConfigInteger(default=lofh, limits = (lofh, lofh)))
 
-								loft = int(vcolist[len(vcolist)-1][3])
-								tmp.loft[z] = ConfigSubList()
-								tmp.loft[z].append(ConfigInteger(default=loft, limits = (loft, loft)))
+							loft = int(vcolist[len(vcolist)-1][3])
+							tmp.loft[z] = ConfigSubList()
+							tmp.loft[z].append(ConfigInteger(default=loft, limits = (loft, loft)))
 						sectionDict[y] = tmp
 
 				if lnb < 3:
@@ -1329,19 +1397,6 @@ def InitNimManager(nimmgr, update_slots = []):
 					section.unicableLnb = ConfigSubDict()
 					section.unicableLnbManufacturer = ConfigSelection(UnicableLnbManufacturers, UnicableLnbManufacturers[0])
 					fillUnicableConf(section.unicableLnb, unicablelnbproducts, False)
-
-#TODO satpositions for satcruser
-				section.satcruser = ConfigSelection(advanced_lnb_satcruser_choices, default="1")
-				tmp = ConfigSubList()
-				tmp.append(ConfigInteger(default=1284, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default=1400, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default=1516, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default=1632, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default=1748, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default=1864, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default=1980, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default=2096, limits = (950, 2150)))
-				section.satcrvcouser = tmp
 
 				nim.advanced.unicableconnected = ConfigYesNo(default=False)
 				nim.advanced.unicableconnectedTo = ConfigSelection([(str(id), nimmgr.getNimDescription(id)) for id in nimmgr.getNimListOfType("DVB-S") if id != x])
@@ -1622,6 +1677,8 @@ def InitNimManager(nimmgr, update_slots = []):
 			nim.multiType.fe_id = x - empty_slots
 			nim.multiType.addNotifier(boundFunction(tunerTypeChanged, nimmgr), initial_call=False)
 			tunerTypeChanged(nimmgr, nim.multiType, initial=True)
+
+		print"[NimManager] slotname = %s, slotdescription = %s, multitype = %s" % (slot.input_name, slot.description,(slot.isMultiType() and addMultiType))
 
 	empty_slots = 0
 	for slot in nimmgr.nim_slots:
