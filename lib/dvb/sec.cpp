@@ -394,7 +394,7 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 				// calc Frequency
 				int local= abs(sat.frequency
 					- lof);
-				volatile unsigned int tmp= (125 + 2 * local) / (2 * 125); //round to multiple of 125
+				unsigned int tmp= (125 + 2 * local) / (2 * 125); //round to multiple of 125
 				frequency = 125 * tmp;
 				frontend.setData(eDVBFrontend::FREQ_OFFSET, sat.frequency - frequency);
 
@@ -426,7 +426,7 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 							int tmp1 = abs(sat.frequency
 								-lof)
 								- 100000;
-							volatile unsigned int tmp2 = (1000 + 2 * tmp1) / (2 *1000); //round to multiple of 4000
+							unsigned int tmp2 = (1000 + 2 * tmp1) / (2 *1000); //round to multiple of 4000
 							frequency = lnb_param.SatCRvco - (tmp1 - (1000 * tmp2));
 							lnb_param.UnicableTuningWord =
 								  (band & 0x3)						//Bit0:HighLow  Bit1:VertHor
@@ -446,7 +446,7 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 								+ lnb_param.SatCRvco
 								- 1400000
 								+ lnb_param.guard_offset;
-							volatile unsigned int tmp2 = (4000 + 2 * tmp1) / (2 *4000); //round to multiple of 4000
+							unsigned int tmp2 = (4000 + 2 * tmp1) / (2 *4000); //round to multiple of 4000
 							frequency = lnb_param.SatCRvco - (tmp1 - (4000 * tmp2)) + lnb_param.guard_offset;
 							lnb_param.UnicableTuningWord = tmp2
 								| ((band & 1) ? 0x400 : 0)			//HighLow
