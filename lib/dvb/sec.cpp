@@ -392,9 +392,8 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 			if(!is_unicable)
 			{
 				// calc Frequency
-				int local= abs(sat.frequency
-					- lof);
-				unsigned int tmp= (125 + 2 * local) / (2 * 125); //round to multiple of 125
+				int local = abs(sat.frequency - lof);
+				unsigned int tmp = (125 + 2 * local) / (2 * 125); //round to multiple of 125
 				frequency = 125 * tmp;
 				frontend.setData(eDVBFrontend::FREQ_OFFSET, sat.frequency - frequency);
 
@@ -420,44 +419,43 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 			{
 				switch(lnb_param.SatCR_format)
 				{
-					case 1:
-						{
-							//eDebug("[prepare] JESS");
-							int tmp1 = abs(sat.frequency
-								-lof)
-								- 100000;
-							unsigned int tmp2 = (1000 + 2 * tmp1) / (2 *1000); //round to multiple of 4000
-							frequency = lnb_param.SatCRvco - (tmp1 - (1000 * tmp2));
-							lnb_param.UnicableTuningWord =
+					case 1: // JESS
+					{
+						//eDebug("[prepare] JESS");
+						int tmp1 = abs(sat.frequency - lof) - 100000;
+						unsigned int tmp2 = (1000 + 2 * tmp1) / (2 *1000); //round to multiple of 4000
+
+						frequency = lnb_param.SatCRvco - (tmp1 - (1000 * tmp2));
+						lnb_param.UnicableTuningWord =
 								  (band & 0x3)						//Bit0:HighLow  Bit1:VertHor
 								| (((lnb_param.LNBNum - 1) & 0x3F) << 2)			//position number (max. 63)
 								| ((tmp2 & 0x7FF)<< 8)					//frequency (-100MHz Offset)
 								| ((lnb_param.SatCR_idx & 0x1F) << 19);			//adresse of SatCR (max. 32)
-							//eDebug("[prepare] UnicableTuningWord %#06x",lnb_param.UnicableTuningWord);
-							frontend.setData(eDVBFrontend::FREQ_OFFSET, lnb_param.SatCRvco);
-						}
+						//eDebug("[prepare] UnicableTuningWord %#06x",lnb_param.UnicableTuningWord);
+						frontend.setData(eDVBFrontend::FREQ_OFFSET, lnb_param.SatCRvco);
+
 						break;
-					case 0:
-					default:
-						{
-							//eDebug("[prepare] Unicable");
-							int tmp1 = abs(sat.frequency
-								-lof)
-								+ lnb_param.SatCRvco
-								- 1400000
-								+ lnb_param.guard_offset;
-							unsigned int tmp2 = (4000 + 2 * tmp1) / (2 *4000); //round to multiple of 4000
-							frequency = lnb_param.SatCRvco - (tmp1 - (4000 * tmp2)) + lnb_param.guard_offset;
-							lnb_param.UnicableTuningWord = tmp2
+					}
+
+					default: // Unicable or other?
+					{
+						//eDebug("[prepare] Unicable");
+						int tmp1 = abs(sat.frequency - lof) + lnb_param.SatCRvco - 1400000 + lnb_param.guard_offset;
+						unsigned int tmp2 = (4000 + 2 * tmp1) / (2 *4000); //round to multiple of 4000
+
+						frequency = lnb_param.SatCRvco - (tmp1 - (4000 * tmp2)) + lnb_param.guard_offset;
+						lnb_param.UnicableTuningWord = tmp2
 								| ((band & 1) ? 0x400 : 0)			//HighLow
 								| ((band & 2) ? 0x800 : 0)			//VertHor
 								| ((lnb_param.LNBNum & 1) ? 0 : 0x1000)			//Umschaltung LNB1 LNB2
 								| (lnb_param.SatCR_idx << 13);		//Adresse des SatCR
-							//eDebug("[prepare] UnicableTuningWord %#04x",lnb_param.UnicableTuningWord);
-							//eDebug("[prepare] guard_offset %d",lnb_param.guard_offset);
-							frontend.setData(eDVBFrontend::FREQ_OFFSET, (lnb_param.UnicableTuningWord & 0x3FF) *4000 + 1400000 + lof - (2 * (lnb_param.SatCRvco - (tmp1 - (4000 * tmp2)))) );
-						}
-				voltage = VOLTAGE(13);
+						//eDebug("[prepare] UnicableTuningWord %#04x",lnb_param.UnicableTuningWord);
+						//eDebug("[prepare] guard_offset %d",lnb_param.guard_offset);
+						frontend.setData(eDVBFrontend::FREQ_OFFSET, (lnb_param.UnicableTuningWord & 0x3FF) *4000 + 1400000 + lof - (2 * (lnb_param.SatCRvco - (tmp1 - (4000 * tmp2)))) );
+						voltage = VOLTAGE(13);
+
+						break;
+					}
 				}
 			}
 
@@ -749,23 +747,31 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 
 				eDVBDiseqcCommand diseqc;
 				memset(diseqc.data, 0, MAX_DISEQC_LENGTH);
+
 				switch(lnb_param.SatCR_format)
 				{
-					case 1: //JESS
+					case 1: // JESS
+					{
 						diseqc.len = 4;
 						diseqc.data[0] = 0x70;
 						diseqc.data[1] = lnb_param.UnicableTuningWord >> 16;
 						diseqc.data[2] = lnb_param.UnicableTuningWord >> 8;
 						diseqc.data[3] = lnb_param.UnicableTuningWord;
+
 						break;
-					case 0: //DiSEqC
-					default:
+					}
+
+					default: // Unicable or other?
+					{
 						diseqc.len = 5;
 						diseqc.data[0] = 0xE0;
 						diseqc.data[1] = 0x10;
 						diseqc.data[2] = 0x5A;
 						diseqc.data[3] = lnb_param.UnicableTuningWord >> 8;
 						diseqc.data[4] = lnb_param.UnicableTuningWord;
+
+						break;
+					}
 				}
 
 				sec_sequence.push_back( eSecCommand(eSecCommand::SEND_DISEQC, diseqc) );

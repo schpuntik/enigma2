@@ -20,7 +20,6 @@ from datetime import datetime
 from Tools import Directories
 import xml.etree.cElementTree
 
-
 def getConfigSatlist(orbpos, satlist):
 	default_orbpos = None
 	for x in satlist:
@@ -336,9 +335,9 @@ class SecConfigure:
 				elif currLnb.lof.value == "unicable" or currLnb.lof.value == "jess":
 					def setupUnicable(configManufacturer, ProductDict):
 						if currLnb.lof.value == "jess":
-							sec.setLNBSatCRformat(1)	#JESS
+							sec.setLNBSatCRformat(1)	# JESS
 						else:
-							sec.setLNBSatCRformat(0)	#DiSEqC
+							sec.setLNBSatCRformat(0)	# Unicable
 						manufacturer_name = configManufacturer.value
 						manufacturer = ProductDict[manufacturer_name]
 						product_name = manufacturer.product.value
@@ -1286,7 +1285,7 @@ def InitNimManager(nimmgr, update_slots = []):
 			else:
 				advanced_lnb_satcruser_choices = [ ("1", "ID 1"), ("2", "ID 2"), ("3", "ID 3"), ("4", "ID 4"),
 					("5", "ID 5"), ("6", "ID 6"), ("7", "ID 7"), ("8", "ID8")]
-			
+
 			section.satcruser = ConfigSelection(advanced_lnb_satcruser_choices, default="1")
 			tmp = ConfigSubList()
 			if configElement.value == "jess":
@@ -1332,7 +1331,7 @@ def InitNimManager(nimmgr, update_slots = []):
 				tmp.append(ConfigInteger(default=1980, limits = (950, 2150)))
 				tmp.append(ConfigInteger(default=2096, limits = (950, 2150)))
 			section.satcrvcouser = tmp
-			
+
 			if isinstance(section.unicable, ConfigNothing):
 				if lnb == 1:
 					section.unicable = ConfigSelection(unicable_choices, unicable_choices_default)
