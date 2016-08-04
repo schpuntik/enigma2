@@ -876,9 +876,6 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 						{
 							diseqc.len = 4;
 							diseqc.data[0] = 0x70;
-							diseqc.data[1] = lnb_param.TuningWord >> 16;
-							diseqc.data[2] = lnb_param.TuningWord >> 8;
-							diseqc.data[3] = lnb_param.TuningWord;
 						}
 						else
 						{
