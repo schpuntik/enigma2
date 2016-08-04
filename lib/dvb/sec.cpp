@@ -286,7 +286,7 @@ bool need_turn_fast(int turn_speed)
 			eDebug(x); \
 	} while(0)
 
-int heterodyne(iDVBFrontend &frontend, int rf, int lof)
+static int heterodyne(iDVBFrontend &frontend, int rf, int lof)
 {
 	long inv;
 	int ifreq = rf - lof;
