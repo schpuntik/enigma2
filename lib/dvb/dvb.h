@@ -16,6 +16,8 @@
 
 #include <dvbsi++/service_description_section.h>
 
+int roundMulti(int value, int m);
+
 class eDVBChannel;
 
 	/* we do NOT handle resource conflicts here. instead, the allocateChannel

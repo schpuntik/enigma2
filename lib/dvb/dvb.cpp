@@ -27,6 +27,13 @@ DEFINE_REF(eDVBRegisteredDemux);
 
 DEFINE_REF(eDVBAllocatedFrontend);
 
+//round value to multiple of m
+int roundMulti(int value, int m)
+{
+	int tmp = (m + 2 * value) / (2 * m);
+	return (m * tmp);
+}
+
 void eDVBRegisteredFrontend::closeFrontend()
 {
 	if (!m_inuse && m_frontend->closeFrontend()) // frontend busy

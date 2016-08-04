@@ -13,8 +13,6 @@
 
 #include <linux/dvb/frontend.h>
 
-extern int roundMulti(int value, int m);//round value to multiple of m
-
 struct eDVBFrontendParametersSatellite
 {
 #ifndef SWIG

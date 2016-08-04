@@ -286,12 +286,6 @@ bool need_turn_fast(int turn_speed)
 		if (!simulate) \
 			eDebug(x); \
 	} while(0)
-//round value to multiple of m
-int roundMulti(int value, int m)
-{
-	volatile int tmp = (m + 2 * value) / (2 * m);
-	return (m * tmp);
-}
 
 int heterodyne(iDVBFrontend &frontend, int rf, int lof)
 {
