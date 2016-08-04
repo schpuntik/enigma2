@@ -1283,7 +1283,7 @@ def InitNimManager(nimmgr, update_slots = []):
 
 	unicable_choices = {
 		"unicable_lnb": _("Unicable LNB"),
-		"unicable_matrix": _("Unicable Martix"),
+		"unicable_matrix": _("Unicable Matrix"),
 		"unicable_user": "Unicable "+_("User defined")}
 	unicable_choices_default = "unicable_lnb"
 
@@ -1355,9 +1355,9 @@ def InitNimManager(nimmgr, update_slots = []):
 			if isinstance(section.unicable, ConfigNothing):
 				if lnb == 1:
 					section.unicable = ConfigSelection(unicable_choices, unicable_choices_default)
-					section.unicable = ConfigSelection(choices = {"unicable_matrix": _("Unicable Martix"),"unicable_user": "Unicable "+_("User defined")}, default = "unicable_matrix")
 #				elif lnb == 2:
 				else:
+					section.unicable = ConfigSelection(choices = {"unicable_matrix": _("Unicable Matrix"),"unicable_user": "Unicable "+_("User defined")}, default = "unicable_matrix")
 #					section.unicable = ConfigSelection(choices = {"unicable_user": _("User defined")}, default = "unicable_user")
 			if 1==1:
 				def fillUnicableConf(sectionDict, unicableproducts, vco_null_check):
