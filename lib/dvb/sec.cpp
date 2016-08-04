@@ -299,33 +299,33 @@ static int heterodyne(iDVBFrontend &frontend, int rf, int lof)
 	return ifreq;
 }
 
-RESULT eDVBSatelliteEquipmentControl::prepareRFmagicCSS(iDVBFrontend &frontend, eDVBSatelliteLNBParameters &lnb_param, long band, int ifreq, int &tunerfreq, unsigned int &tuningword)
+RESULT eDVBSatelliteEquipmentControl::prepareOffsetForJESS(iDVBFrontend &frontend, eDVBSatelliteLNBParameters &lnb_param, long band, int ifreq, int &tunerfreq, unsigned int &tuningword)
 {
-	int vco = roundMulti(lnb_param.SatCRvco + ifreq, 1000);
-	tunerfreq = heterodyne(frontend, ifreq, vco);
-	tuningword = (((roundMulti(vco - lnb_param.SatCRvco - 100000, 1000)/1000)&0x07FF)<<8)
+	int offset = roundMulti(lnb_param.SatCRvco + ifreq, 1000);
+	tunerfreq = heterodyne(frontend, ifreq, offset);
+	tuningword = (((roundMulti(offset - lnb_param.SatCRvco - 100000, 1000)/1000)&0x07FF)<<8)
 			| (band & 0x3)						//Bit0:HighLow  Bit1:VertHor
 			| (((lnb_param.LNBNum - 1) & 0x3F) << 2)			//position number (max. 63)
 			| ((lnb_param.SatCR_idx & 0x1F) << 19);			//adresse of SatCR (max. 32)
 
-	eDebug("vco %d",vco);
+	eDebug("offset %d",offset);
 	eDebug("tunerfreq %d", tunerfreq);
 	eDebug("tuningword %d", tuningword);
-	return vco;
+	return offset;
 }
 
-RESULT eDVBSatelliteEquipmentControl::prepareSTelectronicSatCR(iDVBFrontend &frontend, eDVBSatelliteLNBParameters &lnb_param, long band, int ifreq, int &tunerfreq, unsigned int &tuningword)
+RESULT eDVBSatelliteEquipmentControl::prepareOffsetForUnicable(iDVBFrontend &frontend, eDVBSatelliteLNBParameters &lnb_param, long band, int ifreq, int &tunerfreq, unsigned int &tuningword)
 {
-	int vco = roundMulti(lnb_param.SatCRvco + ifreq, 4000);
-	tunerfreq = heterodyne(frontend, ifreq, vco);
-	tuningword = ((vco - 1400000)/4000)
+	int offset = roundMulti(lnb_param.SatCRvco + ifreq, 4000);
+	tunerfreq = heterodyne(frontend, ifreq, offset);
+	tuningword = ((offset - 1400000)/4000)
 			|(((lnb_param.LNBNum+1) & 1) << 9)
 			|((band & 3) <<10)
 			|((lnb_param.SatCR_idx & 7) << 13);
-	eDebug("vco %d",vco);
+	eDebug("offset %d",offset);
 	eDebug("tunerfreq %d", tunerfreq);
 	eDebug("tuningword %d", tuningword);
-	return  vco;
+	return  offset;
 }
 
 
@@ -480,7 +480,7 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 					case 1: // JESS
 					{
 						eDebug("[prepare] JESS");
-						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareRFmagicCSS(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord));
+						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareOffsetForJESS(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord));
 
 						break;
 					}
@@ -488,7 +488,7 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 					default: // Unicable or other?
 					{
 						eDebug("[prepare] Unicable");
-						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareSTelectronicSatCR(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord));
+						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareOffsetForUnicable(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord));
 
 						break;
 					}
