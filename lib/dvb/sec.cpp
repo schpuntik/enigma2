@@ -2,6 +2,7 @@
 #include <lib/dvb/sec.h>
 #include <lib/dvb/rotor_calc.h>
 #include <lib/dvb/dvbtime.h>
+#include <lib/dvb/crc32.h>
 
 #include <set>
 
@@ -14,8 +15,6 @@
 #else
 #define eSecDebug(arg...)
 #endif
-
-extern const uint32_t crc32_table[256];
 
 DEFINE_REF(eDVBSatelliteEquipmentControl);
 
