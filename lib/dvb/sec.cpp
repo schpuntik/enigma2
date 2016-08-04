@@ -446,7 +446,6 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 			}
 
 			int lof = (band&1)?lnb_param.m_lof_hi:lnb_param.m_lof_lo;
-
 			int ifreq = heterodyne(frontend, sat.frequency, lof);
 
 			if(!is_unicable)
@@ -863,7 +862,7 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 				sec_sequence.push_back( eSecCommand(eSecCommand::SLEEP, m_params[DELAY_AFTER_VOLTAGE_CHANGE_BEFORE_SWITCH_CMDS] ) );
 
 				frontend.setData(eDVBFrontend::DICTION, lnb_param.SatCR_format);
-//TODO				frontend.setData(eDVBFrontend::PIN, lnb_param.SatCR_pin);
+//TODO			frontend.setData(eDVBFrontend::PIN, lnb_param.SatCR_pin);
 
 //>>> HACK adenin20150421
 				long pin = 0;
