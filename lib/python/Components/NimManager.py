@@ -1359,77 +1359,76 @@ def InitNimManager(nimmgr, update_slots = []):
 				else:
 					section.unicable = ConfigSelection(choices = {"unicable_matrix": _("Unicable Matrix"),"unicable_user": "Unicable "+_("User defined")}, default = "unicable_matrix")
 #					section.unicable = ConfigSelection(choices = {"unicable_user": _("User defined")}, default = "unicable_user")
-			if 1==1:
-				def fillUnicableConf(sectionDict, unicableproducts, vco_null_check):
-					for manufacturer in unicableproducts:
-						products = unicableproducts[manufacturer].keys()
-						products.sort()
-						products_valide = []
-						products_valide_append = products_valide.append
-						tmp = ConfigSubsection()
-						tmp.scr = ConfigSubDict()
-						tmp.vco = ConfigSubDict()
-						tmp.lofl = ConfigSubDict()
-						tmp.lofh = ConfigSubDict()
-						tmp.loft = ConfigSubDict()
-						tmp.positions = ConfigSubDict()
-						tmp.diction = ConfigSubDict()
-						for article in products:
-							positionslist = unicableproducts[manufacturer][article].get("positions")
-							positions = int(positionslist[0])
-							dictionlist = [unicableproducts[manufacturer][article].get("diction")]
-							if lnb <= positions or dictionlist[0][0] !="EN50607":
-								tmp.positions[article] = ConfigSubList()
-								tmp.positions[article].append(ConfigInteger(default = positions, limits = (positions, positions)))
-								tmp.diction[article] = ConfigSelection(choices = dictionlist, default = dictionlist[0][0])
+			def fillUnicableConf(sectionDict, unicableproducts, vco_null_check):
+				for manufacturer in unicableproducts:
+					products = unicableproducts[manufacturer].keys()
+					products.sort()
+					products_valide = []
+					products_valide_append = products_valide.append
+					tmp = ConfigSubsection()
+					tmp.scr = ConfigSubDict()
+					tmp.vco = ConfigSubDict()
+					tmp.lofl = ConfigSubDict()
+					tmp.lofh = ConfigSubDict()
+					tmp.loft = ConfigSubDict()
+					tmp.positions = ConfigSubDict()
+					tmp.diction = ConfigSubDict()
+					for article in products:
+						positionslist = unicableproducts[manufacturer][article].get("positions")
+						positions = int(positionslist[0])
+						dictionlist = [unicableproducts[manufacturer][article].get("diction")]
+						if lnb <= positions or dictionlist[0][0] !="EN50607":
+							tmp.positions[article] = ConfigSubList()
+							tmp.positions[article].append(ConfigInteger(default = positions, limits = (positions, positions)))
+							tmp.diction[article] = ConfigSelection(choices = dictionlist, default = dictionlist[0][0])
 
-								scrlist = []
-								scrlist_append = scrlist.append
-								vcolist = unicableproducts[manufacturer][article].get("frequencies")
-								tmp.vco[article] = ConfigSubList()
-								for cnt in range(1,len(vcolist)+1):
-									vcofreq = int(vcolist[cnt-1])
-									if vcofreq == 0 and vco_null_check:
-										scrlist_append(("%d" %cnt,"SCR %d " %cnt +_("not used")))
-									else:
-										scrlist_append(("%d" %cnt,"SCR %d" %cnt))
-									tmp.vco[article].append(ConfigInteger(default = vcofreq, limits = (vcofreq, vcofreq)))
+							scrlist = []
+							scrlist_append = scrlist.append
+							vcolist = unicableproducts[manufacturer][article].get("frequencies")
+							tmp.vco[article] = ConfigSubList()
+							for cnt in range(1,len(vcolist)+1):
+								vcofreq = int(vcolist[cnt-1])
+								if vcofreq == 0 and vco_null_check:
+									scrlist_append(("%d" %cnt,"SCR %d " %cnt +_("not used")))
+								else:
+									scrlist_append(("%d" %cnt,"SCR %d" %cnt))
+								tmp.vco[article].append(ConfigInteger(default = vcofreq, limits = (vcofreq, vcofreq)))
 
-								tmp.scr[article] = ConfigSelection(choices = scrlist, default = scrlist[0][0])
+							tmp.scr[article] = ConfigSelection(choices = scrlist, default = scrlist[0][0])
 
-								tmp.lofl[article] = ConfigSubList()
-								tmp.lofh[article] = ConfigSubList()
-								tmp.loft[article] = ConfigSubList()
+							tmp.lofl[article] = ConfigSubList()
+							tmp.lofh[article] = ConfigSubList()
+							tmp.loft[article] = ConfigSubList()
 
-								tmp_lofl_article_append = tmp.lofl[article].append
-								tmp_lofh_article_append = tmp.lofh[article].append
-								tmp_loft_article_append = tmp.loft[article].append
+							tmp_lofl_article_append = tmp.lofl[article].append
+							tmp_lofh_article_append = tmp.lofh[article].append
+							tmp_loft_article_append = tmp.loft[article].append
 
-								for cnt in range(1,positions+1):
-									lofl = int(positionslist[cnt][0])
-									lofh = int(positionslist[cnt][1])
-									loft = int(positionslist[cnt][2])
-									tmp_lofl_article_append(ConfigInteger(default = lofl, limits = (lofl, lofl)))
-									tmp_lofh_article_append(ConfigInteger(default = lofh, limits = (lofh, lofh)))
-									tmp_loft_article_append(ConfigInteger(default = loft, limits = (loft, loft)))
-								products_valide_append(article)
+							for cnt in range(1,positions+1):
+								lofl = int(positionslist[cnt][0])
+								lofh = int(positionslist[cnt][1])
+								loft = int(positionslist[cnt][2])
+								tmp_lofl_article_append(ConfigInteger(default = lofl, limits = (lofl, lofl)))
+								tmp_lofh_article_append(ConfigInteger(default = lofh, limits = (lofh, lofh)))
+								tmp_loft_article_append(ConfigInteger(default = loft, limits = (loft, loft)))
+							products_valide_append(article)
 
-						if len(products_valide) == 0:
-							products_valide_append("None")
-						tmp.product = ConfigSelection(choices = products_valide, default = products_valide[0])
-						sectionDict[manufacturer] = tmp
+					if len(products_valide) == 0:
+						products_valide_append("None")
+					tmp.product = ConfigSelection(choices = products_valide, default = products_valide[0])
+					sectionDict[manufacturer] = tmp
 
-				if lnb < 65:
-					print "[InitNimManager] MATRIX"
-					section.unicableMatrix = ConfigSubDict()
-					section.unicableMatrixManufacturer = ConfigSelection(UnicableMatrixManufacturers, UnicableMatrixManufacturers[0])
-					fillUnicableConf(section.unicableMatrix, unicablematrixproducts, True)
+			if lnb < 65:
+				print "[InitNimManager] MATRIX"
+				section.unicableMatrix = ConfigSubDict()
+				section.unicableMatrixManufacturer = ConfigSelection(UnicableMatrixManufacturers, UnicableMatrixManufacturers[0])
+				fillUnicableConf(section.unicableMatrix, unicablematrixproducts, True)
 
-				if lnb < 2:
-					print "[InitNimManager] LNB"
-					section.unicableLnb = ConfigSubDict()
-					section.unicableLnbManufacturer = ConfigSelection(UnicableLnbManufacturers, UnicableLnbManufacturers[0])
-					fillUnicableConf(section.unicableLnb, unicablelnbproducts, False)
+			if lnb < 2:
+				print "[InitNimManager] LNB"
+				section.unicableLnb = ConfigSubDict()
+				section.unicableLnbManufacturer = ConfigSelection(UnicableLnbManufacturers, UnicableLnbManufacturers[0])
+				fillUnicableConf(section.unicableLnb, unicablelnbproducts, False)
 
 #TODO satpositions for satcruser
 
