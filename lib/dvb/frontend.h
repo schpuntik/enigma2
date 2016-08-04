@@ -71,7 +71,6 @@ public:
 		SATCR,                // current SatCR
 		DICTION,              // current diction
 		PIN,                  // pin
-		DISEQC_WDG,           // Watchdog for buggy DiSEqC-implementation (VuZero)
 		SPECTINV_CNT,         // spectral inversation counter (need for offset calculation)
 		LFSR,                 // PRNG collision handling
 		NUM_DATA_ENTRIES
