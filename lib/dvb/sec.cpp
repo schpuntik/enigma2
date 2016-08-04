@@ -319,15 +319,14 @@ RESULT eDVBSatelliteEquipmentControl::prepareOffsetForUnicable(iDVBFrontend &fro
 	int offset = roundMulti(lnb_param.SatCRvco + ifreq, 4000);
 	tunerfreq = heterodyne(frontend, ifreq, offset);
 	tuningword = ((offset - 1400000)/4000)
-			|(((lnb_param.LNBNum+1) & 1) << 12)
-			|((band & 3) <<10)
-			|((lnb_param.SatCR_idx & 7) << 13);
+			| (((lnb_param.LNBNum+1) & 1) << 12)
+			| ((band & 3) <<10)
+			| ((lnb_param.SatCR_idx & 7) << 13);
 	eDebug("offset %d",offset);
 	eDebug("tunerfreq %d", tunerfreq);
 	eDebug("tuningword %d", tuningword);
 	return  offset;
 }
-
 
 /**
  * @brief prepare for tune
