@@ -1206,7 +1206,7 @@ def InitNimManager(nimmgr, update_slots = []):
 				if scr[len(lscr)-i-1] == "0":
 					scr_pop()
 				else:
-					break;
+					break
 
 			p_update({"frequencies":tuple(scr)})												#add scr frequencies to dict product
 
