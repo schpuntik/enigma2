@@ -299,16 +299,16 @@ static int heterodyne(iDVBFrontend &frontend, int rf, int lof)
 	return ifreq;
 }
 
-RESULT eDVBSatelliteEquipmentControl::prepareOffsetForJESS(iDVBFrontend &frontend, eDVBSatelliteLNBParameters &lnb_param, long band, int ifreq, int &tunerfreq, unsigned int &tuningword)
+RESULT eDVBSatelliteEquipmentControl::prepareOffsetForJESS(iDVBFrontend &frontend, eDVBSatelliteLNBParameters &lnb_param, long band, int ifreq, int &tunerfreq, unsigned int &tuningword, int guard_offest)
 {
 	bool simulate = ((eDVBFrontend*)&frontend)->is_simulate();
-	int offset = roundMulti(lnb_param.SatCRvco + ifreq, 1000);
+	int offset = roundMulti(lnb_param.SatCRvco + guard_offest + ifreq, 1000);
 	tunerfreq = heterodyne(frontend, ifreq, offset);
 	unsigned int positions = lnb_param.SatCR_positions ? lnb_param.SatCR_positions : 1;
 	unsigned int posnum = (lnb_param.SatCR_positionnumber > 0) // position == 0 -> use first position
 				&& (lnb_param.SatCR_positionnumber <= MAX_EN50607_POSITIONS) ? lnb_param.SatCR_positionnumber - 1 : 0;
 
-	tuningword = (((roundMulti(offset - lnb_param.SatCRvco - 100000, 1000) / 1000) & 0x07FF) << 8)
+	tuningword = (((roundMulti(offset - lnb_param.SatCRvco - (2 * guard_offest) - 100000, 1000) / 1000 ) & 0x07FF) << 8)
 			| (band & 0x3)								// bit0: HighLow  bit1: VertHor
 			| ((posnum & 0x3F) << 2)					// position number (0..63)
 			| ((lnb_param.SatCR_idx & 0x1F) << 19);		// address of SatCR (0..31)
@@ -333,10 +333,10 @@ RESULT eDVBSatelliteEquipmentControl::prepareOffsetForJESS(iDVBFrontend &fronten
 	return offset;
 }
 
-RESULT eDVBSatelliteEquipmentControl::prepareOffsetForUnicable(iDVBFrontend &frontend, eDVBSatelliteLNBParameters &lnb_param, long band, int ifreq, int &tunerfreq, unsigned int &tuningword)
+RESULT eDVBSatelliteEquipmentControl::prepareOffsetForUnicable(iDVBFrontend &frontend, eDVBSatelliteLNBParameters &lnb_param, long band, int ifreq, int &tunerfreq, unsigned int &tuningword, int guard_offest)
 {
 	bool simulate = ((eDVBFrontend*)&frontend)->is_simulate();
-	int offset = roundMulti(lnb_param.SatCRvco + ifreq, 4000);
+	int offset = roundMulti(lnb_param.SatCRvco + ifreq + guard_offest, 4000);
 	tunerfreq = heterodyne(frontend, ifreq, offset);
 	unsigned int positions = lnb_param.SatCR_positions ? lnb_param.SatCR_positions : 1;
 	unsigned int posnum = (lnb_param.SatCR_positionnumber > 0)							// position == 0 -> use position A
@@ -411,7 +411,8 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 				lastToneburst = -1,
 				lastRotorCmd = -1,
 				curRotorPos = -1,
-				satposDependPtr = -1;
+				satposDependPtr = -1,
+				guard_idx = 0;
 			iDVBFrontend *sec_fe=&frontend;
 			eDVBRegisteredFrontend *linked_fe = 0;
 			eDVBSatelliteDiseqcParameters::t_diseqc_mode diseqc_mode = di_param.m_diseqc_mode;
@@ -423,8 +424,6 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 			bool useGotoXX = false;
 			int RotorCmd=-1;
 			int send_mask = 0;
-
-			lnb_param.guard_offset = 0; //HACK
 
 			frontend.setData(eDVBFrontend::SATCR, lnb_param.SatCR_idx);
 
@@ -512,12 +511,30 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 			}
 			else
 			{
+				long curr_frq;
+				long curr_sym;
+
+				frontend.getData(eDVBFrontend::GUARD_IDX, guard_idx);
+				frontend.getData(eDVBFrontend::CUR_FREQ, curr_frq);
+				frontend.getData(eDVBFrontend::CUR_SYM, curr_sym);
+				if ((curr_frq > 0) && ((abs(sat.symbol_rate - curr_sym) < 2000) && (sat.frequency != curr_frq)))
+				{
+					guard_idx++;
+				}
+				if((guard_idx < 0) || (guard_idx >= (sizeof(lnb_param.guard_frq)/sizeof(lnb_param.guard_frq[0]))))
+				{
+					guard_idx = 0;
+				}
+				frontend.setData(eDVBFrontend::GUARD_IDX, guard_idx);
+				frontend.setData(eDVBFrontend::CUR_FREQ, sat.frequency);
+				frontend.setData(eDVBFrontend::CUR_SYM, sat.symbol_rate);
+
 				switch(lnb_param.SatCR_format)
 				{
 					case 1: // JESS
 					{
 						eDebugNoSimulate("[%s] JESS", __func__);
-						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareOffsetForJESS(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord));
+						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareOffsetForJESS(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord, lnb_param.guard_frq[guard_idx]));
 
 						break;
 					}
@@ -525,7 +542,7 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 					default: // Unicable or other?
 					{
 						eDebugNoSimulate("[%s] Unicable", __func__);
-						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareOffsetForUnicable(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord));
+						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareOffsetForUnicable(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord, lnb_param.guard_frq[guard_idx]));	
 
 						break;
 					}
@@ -1166,8 +1183,27 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 			sec_sequence.push_back( eSecCommand(eSecCommand::SLEEP, 500) );
 			sec_sequence.push_back( eSecCommand(eSecCommand::SET_POWER_LIMITING_MODE, eSecCommand::modeDynamic) );
 
-			frontend.setSecSequence(sec_sequence);
+//get top tuner
+			if(((eDVBFrontend *)&frontend)->has_prev())
+			{
+				eDVBFrontend *fe = (eDVBFrontend *)&frontend;
+				fe->getTop(frontend, fe);
 
+				int state;
+				fe->getState(state);
+				if (state != eDVBFrontend::stateClosed)
+				{
+					eSecCommandList sec_takeover_sequence;
+					sec_takeover_sequence.push_front(eSecCommand(eSecCommand::TAKEOVER, (long)&frontend));
+					fe->setSecSequence(sec_takeover_sequence, (eDVBFrontend *)&frontend);
+					eDebug("takeover_sec %d",fe->getDVBID());
+
+					sec_sequence.push_front( eSecCommand(eSecCommand::WAIT_TAKEOVER) );
+					sec_sequence.push_back( eSecCommand(eSecCommand::RELEASE_TAKEOVER, (long)&frontend) );
+					eDebug("waittakeover_sec %d",frontend.getDVBID());
+				}
+			}
+			frontend.setSecSequence(sec_sequence);
 			return 0;
 		}
 	}
@@ -1253,13 +1289,33 @@ void eDVBSatelliteEquipmentControl::prepareTurnOffSatCR(iDVBFrontend &frontend)
 			break;
 		}
 	}
-	frontend.setData(eDVBFrontend::SATCR, -1);
 
 	sec_sequence.push_back( eSecCommand(eSecCommand::SEND_DISEQC, diseqc) );
 	sec_sequence.push_back( eSecCommand(eSecCommand::SLEEP, m_params[DELAY_AFTER_LAST_DISEQC_CMD]) );
 	sec_sequence.push_back( eSecCommand(eSecCommand::SET_VOLTAGE, iDVBFrontend::voltage13) );
 	sec_sequence.push_back( eSecCommand(eSecCommand::DELAYED_CLOSE_FRONTEND) );
 
+	if(((eDVBFrontend *)&frontend)->has_prev())
+	{
+		eDVBFrontend *fe = (eDVBFrontend *)&frontend;
+		fe->getTop(frontend, fe);
+
+		int state;
+		fe->getState(state);
+		if (state != eDVBFrontend::stateClosed)
+		{
+			eSecCommandList sec_takeover_sequence;
+			sec_takeover_sequence.push_front(eSecCommand(eSecCommand::TAKEOVER, (long)&frontend));
+			fe->setSecSequence(sec_takeover_sequence, (eDVBFrontend *)&frontend);
+			eDebug("takeover_sec %d",fe->getDVBID());
+
+			sec_sequence.push_front( eSecCommand(eSecCommand::WAIT_TAKEOVER) );
+			sec_sequence.push_back( eSecCommand(eSecCommand::RELEASE_TAKEOVER, (long)&frontend) );
+			eDebug("waittakeover_sec %d",frontend.getDVBID());
+		}
+		else
+			eDebug("fail: tuner %d is closed",fe->getDVBID());
+	}
 	frontend.setSecSequence(sec_sequence);
 }
 
