@@ -309,8 +309,8 @@ RESULT eDVBSatelliteEquipmentControl::prepareOffsetForJESS(iDVBFrontend &fronten
 				&& (lnb_param.SatCR_positionnumber <= MAX_EN50607_POSITIONS) ? lnb_param.SatCR_positionnumber - 1 : 0;
 
 	tuningword = (((roundMulti(offset - lnb_param.SatCRvco - 100000, 1000) / 1000) & 0x07FF) << 8)
-			| (band & 0x3)						//Bit0:HighLow  Bit1:VertHor
-			| ((posnum & 0x3F) << 2)				//position number (0..63)
+			| (band & 0x3)								// bit0: HighLow  bit1: VertHor
+			| ((posnum & 0x3F) << 2)					// position number (0..63)
 			| ((lnb_param.SatCR_idx & 0x1F) << 19);		// address of SatCR (0..31)
 
 	eDebugNoSimulate("[%s] "
