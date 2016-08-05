@@ -517,7 +517,7 @@ public:
 #ifndef SWIG
 	virtual RESULT setSEC(iDVBSatelliteEquipmentControl *sec)=0;
 	virtual RESULT setSecSequence(eSecCommandList &list)=0;
-	virtual RESULT setSecSequence(eSecCommandList &list, iDVBFrontend *fe)=0;
+	virtual RESULT setSecSequence(eSecCommandList &list, iDVBFrontend *fe) = 0;
 #endif
 	virtual int readFrontendData(int type)=0;
 	virtual void getFrontendStatus(ePtr<iDVBFrontendStatus> &dest)=0;

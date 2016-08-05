@@ -1433,14 +1433,13 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 	int regFE_cnt = 0;
 	int delay=-1;
 	eDVBFrontend *sec_fe = this;
-	eDVBRegisteredFrontend *regFE[32];
+	eDVBRegisteredFrontend *regFE[32]; // FIXME: static array without boundary checking, better use vector
 	long tmp = m_data[LINKED_PREV_PTR];
 	while ( tmp != -1 )
 	{
 		eDVBRegisteredFrontend *prev = (eDVBRegisteredFrontend *)tmp;
 		sec_fe = prev->m_frontend;
 		tmp = prev->m_frontend->m_data[LINKED_PREV_PTR];
-//		eDebug("check tuner %d stats:%d in_use: %d tmp: %d", sec_fe->getDVBID(), sec_fe->m_state, prev->m_inuse, tmp);
 		if (sec_fe != this && !prev->m_inuse)
 		{
 			int state = sec_fe->m_state;
@@ -1468,7 +1467,7 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 		{
 			case eSecCommand::SLEEP:
 				delay = m_sec_sequence.current()++->msec;
-				eDebugNoSimulate("[eDVBFrontend] tuner %d sleep %dms", m_dvbid, delay);
+				eDebugNoSimulate("[eDVBFrontend] tuner %d sleep %d ms", m_dvbid, delay);
 				break;
 			case eSecCommand::GOTO:
 				if ( !setSecSequencePos(m_sec_sequence.current()->steps) )

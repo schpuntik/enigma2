@@ -66,7 +66,7 @@ public:
 		LINKED_NEXT_PTR,      // next double linked list (for linked FEs)
 		SATPOS_DEPENDS_PTR,   // pointer to FE with configured rotor (with twin/quattro lnb)
 		CUR_FREQ,             // current frequency
-		CUR_SYM,              // current frequency
+		CUR_SYM,              // current symbol rate
 		FREQ_OFFSET,          // current frequency offset
 		CUR_VOLTAGE,          // current voltage
 		CUR_TONE,             // current continuous tone

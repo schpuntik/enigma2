@@ -277,7 +277,7 @@ public:
 	unsigned int SatCRvco;
 	unsigned int TuningWord;
 	unsigned int UnicableConfigWord;
-	long guard_frq[2]={-8000,8000};
+	long guard_frq[2] = { -8000, 8000 };
 };
 
 class eDVBRegisteredFrontend;

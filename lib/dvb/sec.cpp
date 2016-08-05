@@ -308,7 +308,7 @@ RESULT eDVBSatelliteEquipmentControl::prepareOffsetForJESS(iDVBFrontend &fronten
 	unsigned int posnum = (lnb_param.SatCR_positionnumber > 0) // position == 0 -> use first position
 				&& (lnb_param.SatCR_positionnumber <= MAX_EN50607_POSITIONS) ? lnb_param.SatCR_positionnumber - 1 : 0;
 
-	tuningword = (((roundMulti(offset - lnb_param.SatCRvco - (2 * guard_offset) - 100000, 1000) / 1000 ) & 0x07FF) << 8)
+	tuningword = (((roundMulti(offset - lnb_param.SatCRvco - (2 * guard_offset) - 100000, 1000) / 1000) & 0x07FF) << 8)
 			| (band & 0x3)								// bit0: HighLow  bit1: VertHor
 			| ((posnum & 0x3F) << 2)					// position number (0..63)
 			| ((lnb_param.SatCR_idx & 0x1F) << 19);		// address of SatCR (0..31)
@@ -518,13 +518,9 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 				frontend.getData(eDVBFrontend::CUR_FREQ, curr_frq);
 				frontend.getData(eDVBFrontend::CUR_SYM, curr_sym);
 				if ((curr_frq > 0) && ((abs(sat.symbol_rate - curr_sym) < 2000) && (sat.frequency != curr_frq)))
-				{
 					guard_idx++;
-				}
 				if((guard_idx < 0) || (guard_idx >= (sizeof(lnb_param.guard_frq)/sizeof(lnb_param.guard_frq[0]))))
-				{
 					guard_idx = 0;
-				}
 				frontend.setData(eDVBFrontend::GUARD_IDX, guard_idx);
 				frontend.setData(eDVBFrontend::CUR_FREQ, sat.frequency);
 				frontend.setData(eDVBFrontend::CUR_SYM, sat.symbol_rate);
