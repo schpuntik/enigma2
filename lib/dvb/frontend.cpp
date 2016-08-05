@@ -1923,7 +1923,7 @@ void eDVBFrontend::setFrontend(bool recvEvents)
 	{
 		int type = -1;
 		oparm.getSystem(type);
-		eDebug("[eDVBFrontend] setting frontend %d events: %s", m_dvbid, recvEvents?"on":"off");
+		eDebug("[eDVBFrontend] setting frontend %d events: %s", m_dvbid, recvEvents ? "on" : "off");
 		if (recvEvents)
 			m_sn->start();
 		feEvent(-1); // flush events
