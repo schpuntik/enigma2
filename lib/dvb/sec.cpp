@@ -519,7 +519,7 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 				frontend.getData(eDVBFrontend::CUR_SYM, curr_sym);
 				if ((curr_frq > 0) && ((abs(sat.symbol_rate - curr_sym) < 2000) && (sat.frequency != curr_frq)))
 					guard_idx++;
-				if((guard_idx < 0) || (guard_idx >= (sizeof(lnb_param.guard_frq)/sizeof(lnb_param.guard_frq[0]))))
+				if ((guard_idx < 0) || (guard_idx >= (sizeof(lnb_param.guard_frq) / sizeof(lnb_param.guard_frq[0]))))
 					guard_idx = 0;
 				frontend.setData(eDVBFrontend::GUARD_IDX, guard_idx);
 				frontend.setData(eDVBFrontend::CUR_FREQ, sat.frequency);

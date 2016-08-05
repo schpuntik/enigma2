@@ -279,7 +279,7 @@ public:
 	unsigned int SatCRvco;
 	unsigned int TuningWord;
 	unsigned int UnicableConfigWord;
-	long guard_frq[2] = { -1, 1 };
+	long guard_frq[2] = { -1, 1 }; // FIXME: this is not allowed in C++ < C++11, assign initial values to members in the constructor
 };
 
 class eDVBRegisteredFrontend;
