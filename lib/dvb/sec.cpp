@@ -411,8 +411,7 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 				lastToneburst = -1,
 				lastRotorCmd = -1,
 				curRotorPos = -1,
-				satposDependPtr = -1,
-				guard_idx = 0;
+				satposDependPtr = -1;
 			iDVBFrontend *sec_fe=&frontend;
 			eDVBRegisteredFrontend *linked_fe = 0;
 			eDVBSatelliteDiseqcParameters::t_diseqc_mode diseqc_mode = di_param.m_diseqc_mode;
@@ -516,14 +515,8 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 				long curr_lof;
 				long curr_band;
 
-				frontend.getData(eDVBFrontend::GUARD_IDX, guard_idx);
 				frontend.getData(eDVBFrontend::CUR_FREQ, curr_frq);
 				frontend.getData(eDVBFrontend::CUR_SYM, curr_sym);
-				if ((curr_frq > 0) && ((abs(sat.symbol_rate - curr_sym) < 2000) && (sat.frequency != curr_frq)))
-					guard_idx++;
-				if ((guard_idx < 0) || (guard_idx >= (sizeof(lnb_param.guard_frq) / sizeof(lnb_param.guard_frq[0]))))
-					guard_idx = 0;
-				frontend.setData(eDVBFrontend::GUARD_IDX, guard_idx);
 				frontend.getData(eDVBFrontend::CUR_LOF, curr_lof);
 				frontend.getData(eDVBFrontend::CUR_BAND, curr_band);
 
@@ -537,7 +530,14 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 					case 1: // JESS
 					{
 						eDebugNoSimulate("[%s] JESS", __func__);
-						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareOffsetForJESS(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord, guard_freq));
+						if(gfrq)
+						{
+							long inv;
+							frontend.getData(eDVBFrontend::SPECTINV_CNT, inv);
+							prepareOffsetForJESS(frontend, lnb_param, curr_band, gfrq, frequency, lnb_param.GuardTuningWord, 0);
+							frontend.setData(eDVBFrontend::SPECTINV_CNT, inv);
+						}
+						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareOffsetForJESS(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord, 0));
 
 						break;
 					}
@@ -545,9 +545,14 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 					default: // Unicable or other?
 					{
 						eDebugNoSimulate("[%s] Unicable", __func__);
-						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareOffsetForUnicable(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord, guard_freq));
-
-						break;
+						if(gfrq)
+						{
+							long inv;
+							frontend.getData(eDVBFrontend::SPECTINV_CNT, inv);
+							prepareOffsetForUnicable(frontend, lnb_param, curr_band, gfrq, frequency, lnb_param.GuardTuningWord, 0);
+							frontend.setData(eDVBFrontend::SPECTINV_CNT, inv);
+						}
+						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareOffsetForUnicable(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord, 0));
 					}
 				}
 				voltage = VOLTAGE(13);

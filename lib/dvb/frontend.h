@@ -81,7 +81,6 @@ public:
 		TAKEOVER_MASTER,
 		TAKEOVER_SLAVE,
 		TAKEOVER_RELEASE,
-		GUARD_IDX,
 		NUM_DATA_ENTRIES
 	};
 	Signal1<void,iDVBFrontend*> m_stateChanged;
