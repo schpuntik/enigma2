@@ -307,12 +307,12 @@ RESULT eDVBSatelliteEquipmentControl::prepareOffsetForJESS(iDVBFrontend &fronten
 	unsigned int posnum = (lnb_param.SatCR_positionnumber > 0) // position == 0 -> use first position
 				&& (lnb_param.SatCR_positionnumber <= MAX_EN50607_POSITIONS) ? (lnb_param.SatCR_positionnumber - 1) % positions : 0;
 
-	tuningword = (((roundMulti(offset - lnb_param.SatCRvco - 100000, 1000)/1000)&0x07FF)<<8)
+	tuningword = (((roundMulti(offset - lnb_param.SatCRvco - 100000, 1000) / 1000) & 0x07FF) << 8)
 			| (band & 0x3)						//Bit0:HighLow  Bit1:VertHor
 			| (posnum << 2)								// position number (0..63)
 			| ((lnb_param.SatCR_idx & 0x1F) << 19);		// address of SatCR (0..31)
 
-	eDebug("offset %d",offset);
+	eDebug("offset %d", offset);
 	eDebug("tunerfreq %d", tunerfreq);
 	eDebug("tuningword %d", tuningword);
 	return offset;
@@ -328,11 +328,12 @@ RESULT eDVBSatelliteEquipmentControl::prepareOffsetForUnicable(iDVBFrontend &fro
 				&& (lnb_param.SatCR_positions == 2)										// has only one position -> use only position A
 				&& ((lnb_param.SatCR_positionnumber - 1) % positions) ?  1 : 0;			// odd numbers use position A; even numbers use position B
 
-	tuningword = ((offset - 1400000)/4000)
-			|(posnum << 12)
-			| ((band & 3) <<10)
+	tuningword = ((offset - 1400000) / 4000)
+			| (posnum << 12)
+			| ((band & 3) << 10)
 			| ((lnb_param.SatCR_idx & 7) << 13);
-	eDebug("offset %d",offset);
+
+	eDebug("offset %d", offset);
 	eDebug("tunerfreq %d", tunerfreq);
 	eDebug("tuningword %d", tuningword);
 	return  offset;
@@ -1357,12 +1358,12 @@ RESULT eDVBSatelliteEquipmentControl::setLNBPrio(int prio)
 RESULT eDVBSatelliteEquipmentControl::setLNBSatCRpositionnumber(int SatCR_positionnumber)
 {
 	eSecDebug("eDVBSatelliteEquipmentControl::setLNBSatCRpositionnumber(%d)", SatCR_positionnumber);
-//	if(!((SatCR_positionnumber > 0) && (SatCR_positionnumber <= MAX_FIXED_LNB_POSITIONS)))
-//		return -EPERM;
+
 	if (currentLNBValid())
 		m_lnbs[m_lnbidx].SatCR_positionnumber = SatCR_positionnumber;
 	else
 		return -ENOENT;
+
 	return 0;
 }
 

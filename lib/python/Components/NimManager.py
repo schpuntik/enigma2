@@ -370,9 +370,9 @@ class SecConfigure:
 							diction = manufacturer.diction[product_name].value
 							if diction != "EN50607" or (posnum <= manufacturer_positions_value and x <= maxFixedLnbPositions): #for every allowed position
 								if diction == "EN50607":
-									sec.setLNBSatCRformat(1)	#JESS
+									sec.setLNBSatCRformat(1)	# JESS
 								else:
-									sec.setLNBSatCRformat(0)	#DiSEqC
+									sec.setLNBSatCRformat(0)	# Unicable
 								sec.setLNBSatCR(manufacturer_scr[product_name].index)
 								sec.setLNBSatCRvco(manufacturer.vco[product_name][manufacturer_scr[product_name].index].value*1000)
 								sec.setLNBSatCRpositions(manufacturer_positions_value)
@@ -1308,7 +1308,7 @@ def InitNimManager(nimmgr, update_slots = []):
 		m = {}
 		m_update = m.update
 		for product in manufacturer.getchildren():
-			p = {}	#new dict empty for new product
+			p = {}	# new dict empty for new product
 			p_update = p.update
 			scr = []
 			scr_append = scr.append
@@ -1321,14 +1321,14 @@ def InitNimManager(nimmgr, update_slots = []):
 				else:
 					break
 
-			p_update({"frequencies":tuple(scr)})												#add scr frequencies to dict product
+			p_update({"frequencies":tuple(scr)})	# add scr frequencies to dict product
 
 			diction = product.get("format","EN50494").upper()
 			if diction in jess_alias:
 				diction = "EN50607"
 			else:
 				diction = "EN50494"
-			p_update({"diction":tuple([diction])})								#add diction to dict product
+			p_update({"diction":tuple([diction])}) # add diction to dict product
 
 			positions = []
 			positions_append = positions.append
@@ -1341,9 +1341,9 @@ def InitNimManager(nimmgr, update_slots = []):
 				lof_append(int(product.get("threshold",11700)))
 				positions_append(tuple(lof))
 
-			p_update({"positions":tuple(positions)})										#add positons to dict product
+			p_update({"positions":tuple(positions)}) # add positons to dict product
 
-			m_update({product.get("name"):p})												#add dict product to dict manufacturer
+			m_update({product.get("name"):p})	# add dict product to dict manufacturer
 		unicablelnbproducts.update({manufacturer.get("name"):m})
 
 	entry = root.find("matrix")
@@ -1351,7 +1351,7 @@ def InitNimManager(nimmgr, update_slots = []):
 		m = {}
 		m_update = m.update
 		for product in manufacturer.getchildren():
-			p = {}																			#new dict empty for new product
+			p = {}	# new dict empty for new product
 			p_update = p.update
 			scr = []
 			scr_append = scr.append
@@ -1364,14 +1364,14 @@ def InitNimManager(nimmgr, update_slots = []):
 				else:
 					break
 
-			p_update({"frequencies":tuple(scr)})												#add scr frequencies to dict product
+			p_update({"frequencies":tuple(scr)})	# add scr frequencies to dict product
 
 			diction = product.get("format","EN50494").upper()
 			if diction in jess_alias:
 				diction = "EN50607"
 			else:
 				diction = "EN50494"
-			p_update({"diction":tuple([diction])})								#add diction to dict product
+			p_update({"diction":tuple([diction])})	# add diction to dict product
 
 			positions = []
 			positions_append = positions.append
@@ -1384,10 +1384,10 @@ def InitNimManager(nimmgr, update_slots = []):
 				lof_append(int(product.get("threshold",11700)))
 				positions_append(tuple(lof))
 
-			p_update({"positions":tuple(positions)})										#add positons to dict product
+			p_update({"positions":tuple(positions)})	# add positons to dict product
 
-			m_update({product.get("name"):p})												#add dict product to dict manufacturer
-		unicablematrixproducts.update({manufacturer.get("name"):m})							#add dict manufacturer to dict unicablematrixproducts
+			m_update({product.get("name"):p})	# add dict product to dict manufacturer
+		unicablematrixproducts.update({manufacturer.get("name"):m})	# add dict manufacturer to dict unicablematrixproducts
 
 	UnicableLnbManufacturers = unicablelnbproducts.keys()
 	UnicableLnbManufacturers.sort()
