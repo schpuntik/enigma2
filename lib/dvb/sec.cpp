@@ -513,6 +513,8 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 			{
 				long curr_frq;
 				long curr_sym;
+				long curr_lof;
+				long curr_band;
 
 				frontend.getData(eDVBFrontend::GUARD_IDX, guard_idx);
 				frontend.getData(eDVBFrontend::CUR_FREQ, curr_frq);
@@ -522,13 +524,13 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 				if ((guard_idx < 0) || (guard_idx >= (sizeof(lnb_param.guard_frq) / sizeof(lnb_param.guard_frq[0]))))
 					guard_idx = 0;
 				frontend.setData(eDVBFrontend::GUARD_IDX, guard_idx);
+				frontend.getData(eDVBFrontend::CUR_LOF, curr_lof);
+				frontend.getData(eDVBFrontend::CUR_BAND, curr_band);
+
+				int gfrq = curr_frq  > 0 ? abs(curr_frq - curr_lof) + (curr_sym * 13) / 20000 : 0;
+
 				frontend.setData(eDVBFrontend::CUR_FREQ, sat.frequency);
 				frontend.setData(eDVBFrontend::CUR_SYM, sat.symbol_rate);
-
-				int guard_freq = (UNICABLE_BANDWIDTH - (sat.symbol_rate / 833)) / 2;
-				if (guard_freq > 8000) guard_freq = 8000;
-				if (guard_freq < 0) guard_freq = 0;
-				guard_freq *= lnb_param.guard_frq[guard_idx];
 
 				switch(lnb_param.SatCR_format)
 				{

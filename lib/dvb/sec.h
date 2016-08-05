@@ -268,7 +268,7 @@ public:
 #define MAX_FIXED_LNB_POSITIONS 64
 #define MAX_MOVABLE_LNBS 6
 
-#define UNICABLE_BANDWIDTH 		47000
+#define UNICABLE_BANDWIDTH 		36000
 
 #define MAX_LNBNUM (MAX_FIXED_LNB_POSITIONS + MAX_MOVABLE_LNBS)
 
@@ -278,6 +278,7 @@ public:
 	int SatCR_format;
 	unsigned int SatCRvco;
 	unsigned int TuningWord;
+	unsigned int GuardTuningWord;
 	unsigned int UnicableConfigWord;
 	long guard_frq[2] = { -1, 1 }; // FIXME: this is not allowed in C++ < C++11, assign initial values to members in the constructor
 };
