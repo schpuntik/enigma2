@@ -304,7 +304,6 @@ RESULT eDVBSatelliteEquipmentControl::prepareOffsetForJESS(iDVBFrontend &fronten
 	bool simulate = ((eDVBFrontend*)&frontend)->is_simulate();
 	int offset = roundMulti(lnb_param.SatCRvco + guard_offset + ifreq, 1000);
 	tunerfreq = heterodyne(frontend, ifreq, offset);
-	unsigned int positions = lnb_param.SatCR_positions ? lnb_param.SatCR_positions : 1;
 	unsigned int posnum = (lnb_param.SatCR_positionnumber > 0) // position == 0 -> use first position
 				&& (lnb_param.SatCR_positionnumber <= MAX_EN50607_POSITIONS) ? lnb_param.SatCR_positionnumber - 1 : 0;
 
