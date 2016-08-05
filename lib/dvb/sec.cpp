@@ -525,12 +525,17 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 				frontend.setData(eDVBFrontend::CUR_FREQ, sat.frequency);
 				frontend.setData(eDVBFrontend::CUR_SYM, sat.symbol_rate);
 
+				int guard_freq = (UNICABLE_BANDWIDTH - (sat.symbol_rate / 833)) / 2;
+				if (guard_freq > 8000) guard_freq = 8000;
+				if (guard_freq < 0) guard_freq = 0;
+				guard_freq *= lnb_param.guard_frq[guard_idx];
+
 				switch(lnb_param.SatCR_format)
 				{
 					case 1: // JESS
 					{
 						eDebugNoSimulate("[%s] JESS", __func__);
-						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareOffsetForJESS(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord, lnb_param.guard_frq[guard_idx]));
+						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareOffsetForJESS(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord, guard_freq));
 
 						break;
 					}
@@ -538,7 +543,7 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 					default: // Unicable or other?
 					{
 						eDebugNoSimulate("[%s] Unicable", __func__);
-						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareOffsetForUnicable(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord, lnb_param.guard_frq[guard_idx]));	
+						frontend.setData(eDVBFrontend::FREQ_OFFSET, lof + prepareOffsetForUnicable(frontend, lnb_param, band, ifreq, frequency, lnb_param.TuningWord, guard_freq));
 
 						break;
 					}
