@@ -1557,56 +1557,56 @@ def InitNimManager(nimmgr, update_slots = []):
 
 #TODO satpositions for satcruser
 
-				section.dictionuser = ConfigSelection(advanced_lnb_diction_user_choices, default = "EN50494")
-				section.satcruserEN50494 = ConfigSelection(advanced_lnb_satcr_user_choicesEN50494, default = "1")
-				section.satcruserEN50607 = ConfigSelection(advanced_lnb_satcr_user_choicesEN50607, default = "1")
+			section.dictionuser = ConfigSelection(advanced_lnb_diction_user_choices, default = "EN50494")
+			section.satcruserEN50494 = ConfigSelection(advanced_lnb_satcr_user_choicesEN50494, default = "1")
+			section.satcruserEN50607 = ConfigSelection(advanced_lnb_satcr_user_choicesEN50607, default = "1")
 
-				tmp = ConfigSubList()
-				tmp.append(ConfigInteger(default = 1284, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1400, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1516, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1632, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1748, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1864, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1980, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 2096, limits = (950, 2150)))
-				section.satcrvcouserEN50494 = tmp
+			tmp = ConfigSubList()
+			tmp.append(ConfigInteger(default = 1284, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1400, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1516, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1632, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1748, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1864, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1980, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 2096, limits = (950, 2150)))
+			section.satcrvcouserEN50494 = tmp
 
-				tmp.append(ConfigInteger(default = 1284, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1400, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1516, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1632, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1748, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1864, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1980, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 2096, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1284, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1400, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1516, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1632, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1748, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1864, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1980, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 2096, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1284, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1400, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1516, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1632, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1748, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1864, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 1980, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default = 2096, limits = (950, 2150)))
-				section.satcrvcouserEN50607 = tmp
+			tmp.append(ConfigInteger(default = 1284, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1400, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1516, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1632, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1748, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1864, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1980, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 2096, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1284, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1400, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1516, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1632, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1748, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1864, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1980, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 2096, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1284, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1400, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1516, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1632, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1748, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1864, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 1980, limits = (950, 2150)))
+			tmp.append(ConfigInteger(default = 2096, limits = (950, 2150)))
+			section.satcrvcouserEN50607 = tmp
 
-				nim.advanced.unicableconnected = ConfigYesNo(default = False)
-				nim.advanced.unicableconnectedTo = ConfigSelection([(str(id), nimmgr.getNimDescription(id)) for id in nimmgr.getNimListOfType("DVB-S") if id != x])
-				if nim.advanced.unicableconnected.value == True and nim.advanced.unicableconnectedTo.value != nim.advanced.unicableconnectedTo.saved_value:
-					from Tools.Notifications import AddPopup
-					from Screens.MessageBox import MessageBox
-					nim.advanced.unicableconnected.value = False
-					nim.advanced.unicableconnected.save()
-					txt = _("Misconfigured unicable connection from tuner %s to tuner %s!\nTuner %s option \"connected to\" are disabled now") % (chr(int(x) + ord('A')), chr(int(nim.advanced.unicableconnectedTo.saved_value) + ord('A')), chr(int(x) + ord('A')),)
-					AddPopup(txt, type = MessageBox.TYPE_ERROR, timeout = 0, id = "UnicableConnectionFailed")
+			nim.advanced.unicableconnected = ConfigYesNo(default = False)
+			nim.advanced.unicableconnectedTo = ConfigSelection([(str(id), nimmgr.getNimDescription(id)) for id in nimmgr.getNimListOfType("DVB-S") if id != x])
+			if nim.advanced.unicableconnected.value == True and nim.advanced.unicableconnectedTo.value != nim.advanced.unicableconnectedTo.saved_value:
+				from Tools.Notifications import AddPopup
+				from Screens.MessageBox import MessageBox
+				nim.advanced.unicableconnected.value = False
+				nim.advanced.unicableconnected.save()
+				txt = _("Misconfigured unicable connection from tuner %s to tuner %s!\nTuner %s option \"connected to\" are disabled now") % (chr(int(x) + ord('A')), chr(int(nim.advanced.unicableconnectedTo.saved_value) + ord('A')), chr(int(x) + ord('A')),)
+				AddPopup(txt, type = MessageBox.TYPE_ERROR, timeout = 0, id = "UnicableConnectionFailed")
 
 	def configDiSEqCModeChanged(configElement):
 		section = configElement.section
