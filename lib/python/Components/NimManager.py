@@ -347,7 +347,7 @@ class SecConfigure:
 						sec.setLNBLOFH(currLnb.lofh.value * 1000)
 						sec.setLNBThreshold(currLnb.loft.value * 1000)
 						sec.setLNBSatCR(int(currLnb.scrList.value) - 1)
-						sec.setLNBSatCRvco(currLnb.scrfrequency.value*1000)
+						sec.setLNBSatCRvco(currLnb.scrfrequency.value * 1000)
 						sec.setLNBSatCRpositions(currLnb.positions.value)
 						currLnb.unicableManufacturer.save_forced = True
 						currLnb.unicableProduct.save_forced = True
