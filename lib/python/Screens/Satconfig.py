@@ -323,29 +323,13 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 					self.list.append(getConfigListEntry("LOF/L", currLnb.lofl))
 					self.list.append(getConfigListEntry("LOF/H", currLnb.lofh))
 					self.list.append(getConfigListEntry(_("Threshold"), currLnb.threshold))
-				elif currLnb.unicable.value == "unicable_matrix":
-					manufacturer_name = currLnb.unicableMatrixManufacturer.value
-					manufacturer = currLnb.unicableMatrix[manufacturer_name]
-					product_name = manufacturer.product.value
-					self.advancedManufacturer = getConfigListEntry(_("Manufacturer"), currLnb.unicableMatrixManufacturer)
-					self.advancedType = getConfigListEntry(_("Type"), manufacturer.product)
-					self.advancedSCR = getConfigListEntry(_("Channel"), manufacturer.scr[product_name])
+				else:
+					self.advancedManufacturer = getConfigListEntry(_("Manufacturer"), currLnb.unicableManufacturer)
+					self.advancedType = getConfigListEntry(_("Type"), currLnb.unicableProduct)
+					self.advancedSCR = getConfigListEntry(_("Channel"), currLnb.scrList)
 					self.list.append(self.advancedManufacturer)
 					self.list.append(self.advancedType)
 					self.list.append(self.advancedSCR)
-					self.list.append(getConfigListEntry(_("Frequency"), manufacturer.vco[product_name][manufacturer.scr[product_name].index]))
-				elif currLnb.unicable.value == "unicable_lnb":
-					manufacturer_name = currLnb.unicableLnbManufacturer.value
-					manufacturer = currLnb.unicableLnb[manufacturer_name]
-					product_name = manufacturer.product.value
-					self.advancedManufacturer = getConfigListEntry(_("Manufacturer"), currLnb.unicableLnbManufacturer)
-					self.advancedType = getConfigListEntry(_("Type"), manufacturer.product)
-					self.advancedSCR = getConfigListEntry(_("Channel"), manufacturer.scr[product_name])
-					self.list.append(self.advancedManufacturer)
-					self.list.append(self.advancedType)
-					self.list.append(self.advancedSCR)
-					self.list.append(getConfigListEntry(_("Frequency"), manufacturer.vco[product_name][manufacturer.scr[product_name].index]))
-
 				choices = []
 				connectable = nimmanager.canConnectTo(self.slotid)
 				for id in connectable:
