@@ -1142,8 +1142,6 @@ def InitNimManager(nimmgr, update_slots = []):
 
 	lnb_choices_default = "universal_lnb"
 
-	unicable_xml = xml.etree.cElementTree.parse(eEnv.resolve("${datadir}/enigma2/unicable.xml")).getroot()
-
 	prio_list = [ ("-1", _("Auto")) ]
 	for prio in range(65)+range(14000,14065)+range(19000,19065):
 		description = ""
@@ -1245,6 +1243,7 @@ def InitNimManager(nimmgr, update_slots = []):
 						section.unicableManufacturer = ConfigSelection(manufacturerlist)
 						section.unicableManufacturer.addNotifier(boundFunction(unicableManufacturerChanged, "lnb"))
 
+				unicable_xml = xml.etree.cElementTree.parse(eEnv.resolve("${datadir}/enigma2/unicable.xml")).getroot()
 				if lnb == 1:
 					section.unicable = ConfigSelection(unicable_choices, unicable_choices_default)
 				elif lnb == 2:
