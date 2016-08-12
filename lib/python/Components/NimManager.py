@@ -334,24 +334,14 @@ class SecConfigure:
 					sec.setLNBLOFH(10600000)
 					sec.setLNBThreshold(11700000)
 				elif currLnb.lof.value == "unicable":
-					if currLnb.unicable.value == "unicable_user":
-						#TODO satpositions for satcruser
-						sec.setLNBLOFL(currLnb.lofl.value * 1000)
-						sec.setLNBLOFH(currLnb.lofh.value * 1000)
-						sec.setLNBThreshold(currLnb.threshold.value * 1000)
-						sec.setLNBSatCR(currLnb.satcruser.index)
-						sec.setLNBSatCRvco(currLnb.satcrvcouser[currLnb.satcruser.index].value*1000)
-						sec.setLNBSatCRpositions(1)	#HACK
-					else:
-						sec.setLNBLOFL(currLnb.lofl.value * 1000)
-						sec.setLNBLOFH(currLnb.lofh.value * 1000)
-						sec.setLNBThreshold(currLnb.loft.value * 1000)
-						sec.setLNBSatCR(int(currLnb.scrList.value) - 1)
-						sec.setLNBSatCRvco(currLnb.scrfrequency.value * 1000)
-						sec.setLNBSatCRpositions(currLnb.positions.value)
-						currLnb.unicableManufacturer.save_forced = True
-						currLnb.unicableProduct.save_forced = True
-						currLnb.scrList.save_forced = True
+					sec.setLNBLOFL(currLnb.lofl.value * 1000)
+					sec.setLNBLOFH(currLnb.lofh.value * 1000)
+					sec.setLNBThreshold(currLnb.threshold.value * 1000)
+					sec.setLNBSatCR(currLnb.scrList.index)
+					sec.setLNBSatCRvco(currLnb.scrfrequency.value * 1000)
+					sec.setLNBSatCRpositions(currLnb.positions.value)
+					sec.setLNBSatCRpositionnumber(int(currLnb.positionNumber.value))
+					### TODO sec.setLNBSatCRformat(currLnb.format.value == "jess")
 				elif currLnb.lof.value == "c_band":
 					sec.setLNBLOFL(5150000)
 					sec.setLNBLOFH(5150000)
@@ -1192,45 +1182,46 @@ def InitNimManager(nimmgr, update_slots = []):
 
 	def configLOFChanged(configElement):
 		if configElement.value == "unicable":
-			unicable_choices = {
-				"unicable_lnb": _("Unicable LNB"),
-				"unicable_matrix": _("Unicable Martix"),
-				"unicable_user": "Unicable "+_("User defined")}
-			unicable_choices_default = "unicable_lnb"
-
-			advanced_lnb_satcruser_choices = [ ("1", "SatCR 1"), ("2", "SatCR 2"), ("3", "SatCR 3"), ("4", "SatCR 4"),
-				("5", "SatCR 5"), ("6", "SatCR 6"), ("7", "SatCR 7"), ("8", "SatCR 8")]
-
 			x = configElement.slot_id
 			lnb = configElement.lnb_id
 			nim = config.Nims[x]
 			lnbs = nim.advanced.lnb
 			section = lnbs[lnb]
 			if isinstance(section.unicable, ConfigNothing):
+				def positionsChanged(configEntry):
+					section.positionNumber = ConfigSelection(["%d" % (x+1) for x in range(configEntry.value)])
 				def scrListChanged(productparameters, srcfrequencylist, configEntry):
-					scrfrequency = int(srcfrequencylist[int(configEntry.value) - 1])
-					section.scrfrequency = ConfigInteger(default=scrfrequency, limits=(scrfrequency, scrfrequency))
-					positions = int(productparameters.get("positions", 1))
-					section.positions = ConfigInteger(default=positions, limits=(positions, positions))
-					lofl = int(productparameters.get("lofl", 9750))
-					section.lofl = ConfigInteger(default=lofl, limits=(lofl, lofl))
-					lofh = int(productparameters.get("lofh", 10600))
-					section.lofh = ConfigInteger(default=lofh, limits=(lofh, lofh))
-					loft = int(productparameters.get("threshold", 11700))
-					section.loft = ConfigInteger(default=loft, limits=(loft, loft))
-
+					section.format = ConfigSelection([("unicable", _("Unicable")), ("jess", _("Jess"))], default=productparameters.get("format", "unicable"))
+					section.scrfrequency = ConfigInteger(default=int(srcfrequencylist[configEntry.index]))
+					section.positions = ConfigInteger(default=int(productparameters.get("positions", 1)))
+					section.positions.addNotifier(positionsChanged)
+					section.lofl = ConfigInteger(default=int(productparameters.get("lofl", 9750)))
+					section.lofh = ConfigInteger(default=int(productparameters.get("lofh", 10600)))
+					section.threshold = ConfigInteger(default=int(productparameters.get("threshold", 11700)))
 				def unicableProductChanged(manufacturer, lnb_or_matrix, configEntry):
 					productparameters = [p for p in [m.getchildren() for m in unicable_xml.find(lnb_or_matrix) if m.get("name") == manufacturer][0] if p.get("name") == configEntry.value][0]
 					srcfrequencylist = productparameters.get("scrs").split(",")
-					scrlist = [("%d" % (x + 1), "SCR %d (%s)" % ((x + 1), srcfrequencylist[x])) for x in range(len(srcfrequencylist))]
-					section.scrList = ConfigSelection(scrlist)
+					section.scrList = ConfigSelection([("%d" % (x + 1), "SCR %d (%s)" % ((x + 1), srcfrequencylist[x])) for x in range(len(srcfrequencylist))])
+					section.scrList.save_forced = True
 					section.scrList.addNotifier(boundFunction(scrListChanged, productparameters, srcfrequencylist))
-
 				def unicableManufacturerChanged(lnb_or_matrix, configEntry):
 					productslist = [p.get("name") for p in [m.getchildren() for m in unicable_xml.find(lnb_or_matrix) if m.get("name") == configEntry.value][0]]
 					section.unicableProduct = ConfigSelection(productslist)
+					section.unicableProduct.save_forced = True
 					section.unicableProduct.addNotifier(boundFunction(unicableProductChanged, configEntry.value, lnb_or_matrix))
-
+				def userScrListChanges(srcfrequencyList, configEntry):
+					section.scrfrequency = ConfigInteger(default=int(srcfrequencylist[configEntry.index]), limits=(950, 2150))
+					section.lofl = ConfigInteger(default=9750, limits=(950, 2150))
+					section.lofh = ConfigInteger(default=10600, limits=(950, 2150))
+					section.threshold = ConfigInteger(default=11700, limits=(950, 2150))
+				def formatChanged(configEntry):
+					section.positions = ConfigInteger(default=configEntry.Value == "jess" and 64 or 2)
+					section.positions.addNotifier(positionsChanged)
+					section.scrList = ConfigSelection([("%d" % (x + 1), "SCR %d" % (x + 1)) for x in range(configEntry.value == "jess" and 32 or 8)])
+					section.scrList.save_forced = True
+					srcfrequencyList = configEntr.Value=="jess" and (1210, 1420, 1680, 2040, 984, 1020, 1056, 1092, 1128, 1164, 1256, 1292, 1328, 1364, 1458, 1494, 1530, 1566, 1602,\
+						1638, 1716, 1752, 1788, 1824, 1860, 1896, 1932, 1968, 2004, 2076, 2112, 2148) or (1284, 1400, 1516, 1632, 1748, 1864, 1980, 2096)
+					section.scrList.addNotifier(boundFunction(userScrListChanged, srcfrequencyList))
 				def unicableChanged(configEntry):
 					if configEntry.value == "unicable_matrix":
 						print "[InitNimManager] MATRIX"
@@ -1241,29 +1232,16 @@ def InitNimManager(nimmgr, update_slots = []):
 						print "[InitNimManager] LNB"
 						manufacturerlist = [m.get("name") for m in unicable_xml.find("lnb")]
 						section.unicableManufacturer = ConfigSelection(manufacturerlist)
+						section.unicableManufacturer.save_forced = True
 						section.unicableManufacturer.addNotifier(boundFunction(unicableManufacturerChanged, "lnb"))
+					else:
+						section.format = ConfigSelection([("unicable", _("Unicable")), ("jess", _("Jess"))], default="unicable")
+						section.format.addNotifier(formatChanged)
 
 				unicable_xml = xml.etree.cElementTree.parse(eEnv.resolve("${datadir}/enigma2/unicable.xml")).getroot()
-				if lnb == 1:
-					section.unicable = ConfigSelection(unicable_choices, unicable_choices_default)
-				elif lnb == 2:
-					section.unicable = ConfigSelection(choices = {"unicable_matrix": _("Unicable Martix"),"unicable_user": "Unicable "+_("User defined")}, default = "unicable_matrix")
-				else:
-					section.unicable = ConfigSelection(choices = {"unicable_user": _("User defined")}, default = "unicable_user")
-				section.unicable.addNotifier(unicableChanged)
 
-				#TODO satpositions for satcruser
-				section.satcruser = ConfigSelection(advanced_lnb_satcruser_choices, default="1")
-				tmp = ConfigSubList()
-				tmp.append(ConfigInteger(default=1284, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default=1400, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default=1516, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default=1632, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default=1748, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default=1864, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default=1980, limits = (950, 2150)))
-				tmp.append(ConfigInteger(default=2096, limits = (950, 2150)))
-				section.satcrvcouser = tmp
+				section.unicable = ConfigSelection([("unicable_lnb", _("Unicable LNB")), ("unicable_matrix", _("Unicable Martix")), ("unicable_user", "Unicable "+_("User defined"))])
+				section.unicable.addNotifier(unicableChanged)
 
 				nim.advanced.unicableconnected = ConfigYesNo(default=False)
 				nim.advanced.unicableconnectedTo = ConfigSelection([(str(id), nimmgr.getNimDescription(id)) for id in nimmgr.getNimListOfType("DVB-S") if id != x])

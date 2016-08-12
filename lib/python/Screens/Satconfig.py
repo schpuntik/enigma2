@@ -114,6 +114,8 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 		self.cableScanType = None
 		self.have_advanced = False
 		self.advancedUnicable = None
+		self.advancedFormat = None
+		self.advancedPosition = None
 		self.advancedType = None
 		self.advancedManufacturer = None
 		self.advancedSCR = None
@@ -236,7 +238,7 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 		checkList = (self.configMode, self.diseqcModeEntry, self.advancedSatsEntry, \
 			self.advancedLnbsEntry, self.advancedDiseqcMode, self.advancedUsalsEntry, \
 			self.advancedLof, self.advancedPowerMeasurement, self.turningSpeed, \
-			self.advancedType, self.advancedSCR, self.advancedManufacturer, self.advancedUnicable, self.advancedConnected, \
+			self.advancedType, self.advancedSCR, self.advancedPosition, self.advancedFormat, self.advancedManufacturer, self.advancedUnicable, self.advancedConnected, \
 			self.toneburst, self.committedDiseqcCommand, self.uncommittedDiseqcCommand, self.singleSatEntry, \
 			self.commandOrder, self.showAdditionalMotorOptions, self.cableScanType, self.multiType)
 		if self["config"].getCurrent() == self.multiType:
@@ -303,8 +305,7 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 
 		if currLnb:
 			if self.nim.isFBCLink():
-				if currLnb.lof.value != "unicable":
-					currLnb.lof.value = "unicable"
+				currLnb.lof.value = "unicable"
 			self.list.append(getConfigListEntry(_("Priority"), currLnb.prio))
 			self.advancedLof = getConfigListEntry("LOF", currLnb.lof)
 			self.list.append(self.advancedLof)
@@ -315,11 +316,16 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 
 			if currLnb.lof.value == "unicable":
 				self.advancedUnicable = getConfigListEntry("Unicable "+_("Configuration mode"), currLnb.unicable)
-				self.list.append(self.advancedUnicable)
+				if lnbnum <= 1:
+					self.list.append(self.advancedUnicable)
 				if currLnb.unicable.value == "unicable_user":
-					self.advancedSCR = getConfigListEntry(_("Channel"), currLnb.satcruser)
+					self.advancedFormat = getConfigListEntry(_("Format"), currLnb.format)
+					self.advancedPosition = getConfigListEntry(_("Position"), currLnb.positionNumber)
+					self.advancedSCR = getConfigListEntry(_("Channel"), currLnb.scrList)
+					self.list.append(self.advancedFormat)
+					self.list.append(self.advancedPosition)
 					self.list.append(self.advancedSCR)
-					self.list.append(getConfigListEntry(_("Frequency"), currLnb.satcrvcouser[currLnb.satcruser.index]))
+					self.list.append(getConfigListEntry(_("Frequency"), currLnb.scrfrequency))
 					self.list.append(getConfigListEntry("LOF/L", currLnb.lofl))
 					self.list.append(getConfigListEntry("LOF/H", currLnb.lofh))
 					self.list.append(getConfigListEntry(_("Threshold"), currLnb.threshold))
@@ -327,8 +333,11 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 					self.advancedManufacturer = getConfigListEntry(_("Manufacturer"), currLnb.unicableManufacturer)
 					self.advancedType = getConfigListEntry(_("Type"), currLnb.unicableProduct)
 					self.advancedSCR = getConfigListEntry(_("Channel"), currLnb.scrList)
+					self.advancedPosition = getConfigListEntry(_("Position"), currLnb.positionNumber)
 					self.list.append(self.advancedManufacturer)
 					self.list.append(self.advancedType)
+					if currLnb.positions > 1:
+						self.list.append(self.advancedPosition)
 					self.list.append(self.advancedSCR)
 				choices = []
 				connectable = nimmanager.canConnectTo(self.slotid)
