@@ -1189,7 +1189,7 @@ def InitNimManager(nimmgr, update_slots = []):
 			section = lnbs[lnb]
 			if isinstance(section.unicable, ConfigNothing):
 				def positionsChanged(configEntry):
-					section.positionNumber = ConfigSelection(["%d" % (x+1) for x in range(configEntry.value)], default="1")
+					section.positionNumber = ConfigSelection(["%d" % (x+1) for x in range(configEntry.value)])
 				def scrListChanged(productparameters, srcfrequencylist, configEntry):
 					section.format = ConfigSelection([("unicable", _("Unicable")), ("jess", _("Jess"))], default=productparameters.get("format", "unicable"))
 					section.scrfrequency = ConfigInteger(default=int(srcfrequencylist[configEntry.index]))
@@ -1217,7 +1217,7 @@ def InitNimManager(nimmgr, update_slots = []):
 				def formatChanged(configEntry):
 					section.positions = ConfigInteger(default=configEntry.value == "jess" and 64 or 2)
 					section.positions.addNotifier(positionsChanged)
-					section.scrList = ConfigSelection([("%d" % (x + 1), "SCR %d" % (x + 1)) for x in range(configEntry.value == "jess" and 32 or 8)], default="1")
+					section.scrList = ConfigSelection([("%d" % (x + 1), "SCR %d" % (x + 1)) for x in range(configEntry.value == "jess" and 32 or 8)])
 					section.scrList.save_forced = True
 					srcfrequencyList = configEntry.value=="jess" and (1210, 1420, 1680, 2040, 984, 1020, 1056, 1092, 1128, 1164, 1256, 1292, 1328, 1364, 1458, 1494, 1530, 1566, 1602,\
 						1638, 1716, 1752, 1788, 1824, 1860, 1896, 1932, 1968, 2004, 2076, 2112, 2148) or (1284, 1400, 1516, 1632, 1748, 1864, 1980, 2096)
@@ -1233,7 +1233,7 @@ def InitNimManager(nimmgr, update_slots = []):
 						section.unicableManufacturer.save_forced = True
 						section.unicableManufacturer.addNotifier(boundFunction(unicableManufacturerChanged, "lnb"))
 					else:
-						section.format = ConfigSelection([("unicable", _("Unicable")), ("jess", _("Jess"))], default="unicable")
+						section.format = ConfigSelection([("unicable", _("Unicable")), ("jess", _("Jess"))])
 						section.format.addNotifier(formatChanged)
 
 				unicable_xml = xml.etree.cElementTree.parse(eEnv.resolve("${datadir}/enigma2/unicable.xml")).getroot()
