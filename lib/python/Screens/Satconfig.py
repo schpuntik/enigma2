@@ -336,7 +336,7 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 					self.advancedPosition = getConfigListEntry(_("Position"), currLnb.positionNumber)
 					self.list.append(self.advancedManufacturer)
 					self.list.append(self.advancedType)
-					if currLnb.positions > 1:
+					if currLnb.positions.value > 1:
 						self.list.append(self.advancedPosition)
 					self.list.append(self.advancedSCR)
 				choices = []

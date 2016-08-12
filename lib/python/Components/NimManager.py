@@ -340,7 +340,7 @@ class SecConfigure:
 					sec.setLNBSatCR(currLnb.scrList.index)
 					sec.setLNBSatCRvco(currLnb.scrfrequency.value * 1000)
 					sec.setLNBSatCRpositions(currLnb.positions.value)
-					sec.setLNBSatCRpositionnumber(int(currLnb.positionNumber.value))
+					### TODO sec.setLNBSatCRpositionnumber(int(currLnb.positionNumber.value))
 					### TODO sec.setLNBSatCRformat(currLnb.format.value == "jess")
 				elif currLnb.lof.value == "c_band":
 					sec.setLNBLOFL(5150000)
@@ -1189,7 +1189,7 @@ def InitNimManager(nimmgr, update_slots = []):
 			section = lnbs[lnb]
 			if isinstance(section.unicable, ConfigNothing):
 				def positionsChanged(configEntry):
-					section.positionNumber = ConfigSelection(["%d" % (x+1) for x in range(configEntry.value)])
+					section.positionNumber = ConfigSelection(["%d" % (x+1) for x in range(configEntry.value)], default="1")
 				def scrListChanged(productparameters, srcfrequencylist, configEntry):
 					section.format = ConfigSelection([("unicable", _("Unicable")), ("jess", _("Jess"))], default=productparameters.get("format", "unicable"))
 					section.scrfrequency = ConfigInteger(default=int(srcfrequencylist[configEntry.index]))
@@ -1209,27 +1209,25 @@ def InitNimManager(nimmgr, update_slots = []):
 					section.unicableProduct = ConfigSelection(productslist)
 					section.unicableProduct.save_forced = True
 					section.unicableProduct.addNotifier(boundFunction(unicableProductChanged, configEntry.value, lnb_or_matrix))
-				def userScrListChanges(srcfrequencyList, configEntry):
-					section.scrfrequency = ConfigInteger(default=int(srcfrequencylist[configEntry.index]), limits=(950, 2150))
+				def userScrListChanged(srcfrequencyList, configEntry):
+					section.scrfrequency = ConfigInteger(default=int(srcfrequencyList[configEntry.index]), limits=(950, 2150))
 					section.lofl = ConfigInteger(default=9750, limits=(950, 2150))
 					section.lofh = ConfigInteger(default=10600, limits=(950, 2150))
 					section.threshold = ConfigInteger(default=11700, limits=(950, 2150))
 				def formatChanged(configEntry):
-					section.positions = ConfigInteger(default=configEntry.Value == "jess" and 64 or 2)
+					section.positions = ConfigInteger(default=configEntry.value == "jess" and 64 or 2)
 					section.positions.addNotifier(positionsChanged)
-					section.scrList = ConfigSelection([("%d" % (x + 1), "SCR %d" % (x + 1)) for x in range(configEntry.value == "jess" and 32 or 8)])
+					section.scrList = ConfigSelection([("%d" % (x + 1), "SCR %d" % (x + 1)) for x in range(configEntry.value == "jess" and 32 or 8)], default="1")
 					section.scrList.save_forced = True
-					srcfrequencyList = configEntr.Value=="jess" and (1210, 1420, 1680, 2040, 984, 1020, 1056, 1092, 1128, 1164, 1256, 1292, 1328, 1364, 1458, 1494, 1530, 1566, 1602,\
+					srcfrequencyList = configEntry.value=="jess" and (1210, 1420, 1680, 2040, 984, 1020, 1056, 1092, 1128, 1164, 1256, 1292, 1328, 1364, 1458, 1494, 1530, 1566, 1602,\
 						1638, 1716, 1752, 1788, 1824, 1860, 1896, 1932, 1968, 2004, 2076, 2112, 2148) or (1284, 1400, 1516, 1632, 1748, 1864, 1980, 2096)
 					section.scrList.addNotifier(boundFunction(userScrListChanged, srcfrequencyList))
 				def unicableChanged(configEntry):
 					if configEntry.value == "unicable_matrix":
-						print "[InitNimManager] MATRIX"
 						manufacturerlist = [m.get("name") for m in unicable_xml.find("matrix")]
 						section.unicableManufacturer = ConfigSelection(manufacturerlist)
 						section.unicableManufacturer.addNotifier(boundFunction(unicableManufacturerChanged, "matrix"))
 					elif configEntry.value == "unicable_lnb":
-						print "[InitNimManager] LNB"
 						manufacturerlist = [m.get("name") for m in unicable_xml.find("lnb")]
 						section.unicableManufacturer = ConfigSelection(manufacturerlist)
 						section.unicableManufacturer.save_forced = True
@@ -1239,7 +1237,6 @@ def InitNimManager(nimmgr, update_slots = []):
 						section.format.addNotifier(formatChanged)
 
 				unicable_xml = xml.etree.cElementTree.parse(eEnv.resolve("${datadir}/enigma2/unicable.xml")).getroot()
-
 				section.unicable = ConfigSelection([("unicable_lnb", _("Unicable LNB")), ("unicable_matrix", _("Unicable Martix")), ("unicable_user", "Unicable "+_("User defined"))])
 				section.unicable.addNotifier(unicableChanged)
 
