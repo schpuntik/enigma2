@@ -16,7 +16,7 @@ from Screens.ServiceStopScreen import ServiceStopScreen
 from Screens.AutoDiseqc import AutoDiseqc
 from Tools.BoundFunction import boundFunction
 
-from time import mktime, localtime
+from time import mktime, localtime, time
 from datetime import datetime
 
 class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
@@ -429,7 +429,8 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 		self["config"].list = self.list
 
 	def keyOk(self):
-		self.stopService()
+		if self["config"].isChanged():
+			self.stopService()
 		if self["config"].getCurrent() == self.advancedSelectSatsEntry:
 			conf = self.nimConfig.advanced.sat[int(self.nimConfig.advanced.sats.value)].userSatellitesList
 			self.session.openWithCallback(boundFunction(self.updateConfUserSatellitesList, conf), SelectSatsEntryScreen, userSatlist=conf.value)
@@ -445,6 +446,8 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 			conf.save()
 
 	def keySave(self):
+		if self["config"].isChanged():
+			self.stopService()
 		old_configured_sats = nimmanager.getConfiguredSats()
 		if not self.run():
 			return
@@ -511,10 +514,7 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 		self.nimConfig = self.nim.config
 		self.createConfigMode()
 		self.createSetup()
-		self.onLayoutFinish.append(self.layoutFinished)
-
-	def layoutFinished(self):
-		self.setTitle(_("Reception Settings"))
+		self.setTitle(_("Setup") + " " + self.nim.friendly_full_description)
 
 	def keyLeft(self):
 		if self.nim.isFBCLink():
@@ -628,15 +628,20 @@ class NimSelection(Screen):
 			self.session.open(MessageBox, text, MessageBox.TYPE_INFO, simple=True)
 
 	def okbuttonClick(self):
-		nim = self["nimlist"].getCurrent()
-		nim = nim and nim[3]
+		recordings = self.session.nav.getRecordings()
+		next_rec_time = self.session.nav.RecordTimer.getNextRecordingTime()
+		if recordings or (next_rec_time and next_rec_time > 0 and (next_rec_time - time()) < 360):
+			self.session.open(MessageBox, _("Recording(s) are in progress or coming up in few seconds!"), MessageBox.TYPE_INFO, timeout=5, enable_input=False)
+		else:
+			nim = self["nimlist"].getCurrent()
+			nim = nim and nim[3]
 
-		nimConfig = nimmanager.getNimConfig(nim.slot)
-		if nim.isFBCLink() and nimConfig.configMode.value == "nothing" and not getLinkedSlotID(nim.slot) == -1:
-			return
+			nimConfig = nimmanager.getNimConfig(nim.slot)
+			if nim.isFBCLink() and nimConfig.configMode.value == "nothing" and not getLinkedSlotID(nim.slot) == -1:
+				return
 
-		if nim is not None and not nim.empty and nim.isSupported():
-			self.session.openWithCallback(boundFunction(self.NimSetupCB, self["nimlist"].getIndex()), self.resultclass, nim.slot)
+			if nim is not None and not nim.empty and nim.isSupported():
+				self.session.openWithCallback(boundFunction(self.NimSetupCB, self["nimlist"].getIndex()), self.resultclass, nim.slot)
 
 	def NimSetupCB(self, index=None):
 		self.updateList(index)
