@@ -340,7 +340,7 @@ class SecConfigure:
 					sec.setLNBSatCR(currLnb.scrList.index)
 					sec.setLNBSatCRvco(currLnb.scrfrequency.value * 1000)
 					sec.setLNBSatCRpositions(currLnb.positions.value)
-					### TODO sec.setLNBSatCRpositionnumber(int(currLnb.positionNumber.value))
+					### TODO sec.setLNBSatCRpositionnumber(int(currLnb.positionNumber.value) + int(currLnb.positionsOffset.value))
 					### TODO sec.setLNBSatCRformat(currLnb.format.value == "jess")
 				elif currLnb.lof.value == "c_band":
 					sec.setLNBLOFL(5150000)
@@ -1195,6 +1195,7 @@ def InitNimManager(nimmgr, update_slots = []):
 					section.scrfrequency = ConfigInteger(default=int(srcfrequencylist[configEntry.index]))
 					section.positions = ConfigInteger(default=int(productparameters.get("positions", 1)))
 					section.positions.addNotifier(positionsChanged)
+					section.positionsOffset = ConfigInteger(default=int(productparameters.get("positionsoffset", 0)))
 					section.lofl = ConfigInteger(default=int(productparameters.get("lofl", 9750)))
 					section.lofh = ConfigInteger(default=int(productparameters.get("lofh", 10600)))
 					section.threshold = ConfigInteger(default=int(productparameters.get("threshold", 11700)))
@@ -1217,6 +1218,7 @@ def InitNimManager(nimmgr, update_slots = []):
 				def formatChanged(configEntry):
 					section.positions = ConfigInteger(default=configEntry.value == "jess" and 64 or 2)
 					section.positions.addNotifier(positionsChanged)
+					section.positionsOffset = ConfigInteger(default=0)
 					section.scrList = ConfigSelection([("%d" % (x + 1), "SCR %d" % (x + 1)) for x in range(configEntry.value == "jess" and 32 or 8)])
 					section.scrList.save_forced = True
 					srcfrequencyList = configEntry.value=="jess" and (1210, 1420, 1680, 2040, 984, 1020, 1056, 1092, 1128, 1164, 1256, 1292, 1328, 1364, 1458, 1494, 1530, 1566, 1602,\
