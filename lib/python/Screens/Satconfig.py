@@ -241,7 +241,11 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 			InitNimManager(nimmanager, update_slots)
 			self.nim = nimmanager.nim_slots[self.slotid]
 			self.nimConfig = self.nim.config
-		self.createSetup()
+		if self["config"].getCurrent() in (self.configMode, self.diseqcModeEntry, self.advancedSatsEntry, self.advancedLnbsEntry, self.advancedDiseqcMode, self.advancedUsalsEntry,\
+			self.advancedLof, self.advancedPowerMeasurement, self.turningSpeed, self.advancedType, self.advancedSCR, self.advancedPosition, self.advancedFormat, self.advancedManufacturer,\
+			self.advancedUnicable, self.advancedConnected, self.toneburst, self.committedDiseqcCommand, self.uncommittedDiseqcCommand, self.singleSatEntry,	self.commandOrder,\
+			self.showAdditionalMotorOptions, self.cableScanType, self.multiType):
+			       self.createSetup()
 
 	def run(self):
 		if self.nimConfig.configMode.value == "simple":
@@ -515,11 +519,8 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 		self.setTitle(_("Setup") + " " + self.nim.friendly_full_description)
 
 	def keyLeft(self):
-		if self.nim.isFBCLink():
-			checkList = (self.advancedLof, self.advancedConnected)
-			curEntry = self["config"].getCurrent()
-			if curEntry in checkList:
-				return
+		if self.nim.isFBCLink() and self["config"].getCurrent() in (self.advancedLof, self.advancedConnected):
+			return
 		ConfigListScreen.keyLeft(self)
 		if self["config"].getCurrent() in (self.advancedSelectSatsEntry, self.selectSatsEntry):
 			self.keyOk()
@@ -532,11 +533,8 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 			self["key_blue"].setText(_("Set default"))
 
 	def keyRight(self):
-		if self.nim.isFBCLink():
-			checkList = (self.advancedLof, self.advancedConnected)
-			curEntry = self["config"].getCurrent()
-			if curEntry in checkList:
-				return
+		if self.nim.isFBCLink() and self["config"].getCurrent() in (self.advancedLof, self.advancedConnected):
+			return
 		ConfigListScreen.keyRight(self)
 		if self["config"].getCurrent() in (self.advancedSelectSatsEntry, self.selectSatsEntry):
 			self.keyOk()
