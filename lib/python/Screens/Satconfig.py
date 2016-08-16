@@ -235,23 +235,13 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 
 	def newConfig(self):
 		self.setTextKeyBlue()
-		checkList = (self.configMode, self.diseqcModeEntry, self.advancedSatsEntry, \
-			self.advancedLnbsEntry, self.advancedDiseqcMode, self.advancedUsalsEntry, \
-			self.advancedLof, self.advancedPowerMeasurement, self.turningSpeed, \
-			self.advancedType, self.advancedSCR, self.advancedPosition, self.advancedFormat, self.advancedManufacturer, self.advancedUnicable, self.advancedConnected, \
-			self.toneburst, self.committedDiseqcCommand, self.uncommittedDiseqcCommand, self.singleSatEntry, \
-			self.commandOrder, self.showAdditionalMotorOptions, self.cableScanType, self.multiType)
 		if self["config"].getCurrent() == self.multiType:
 			update_slots = [self.slotid]
 			from Components.NimManager import InitNimManager
 			InitNimManager(nimmanager, update_slots)
 			self.nim = nimmanager.nim_slots[self.slotid]
 			self.nimConfig = self.nim.config
-
-		for x in checkList:
-			if self["config"].getCurrent() == x:
-				self.createSetup()
-				break
+		self.createSetup()
 
 	def run(self):
 		if self.nimConfig.configMode.value == "simple":
@@ -316,8 +306,7 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 
 			if currLnb.lof.value == "unicable":
 				self.advancedUnicable = getConfigListEntry("Unicable "+_("Configuration mode"), currLnb.unicable)
-				if lnbnum <= 1:
-					self.list.append(self.advancedUnicable)
+				self.list.append(self.advancedUnicable)
 				if currLnb.unicable.value == "unicable_user":
 					self.advancedFormat = getConfigListEntry(_("Format"), currLnb.format)
 					self.advancedPosition = getConfigListEntry(_("Position"), currLnb.positionNumber)
