@@ -20,6 +20,8 @@ from datetime import datetime
 from Tools import Directories
 import xml.etree.cElementTree
 
+config.unicable = ConfigSubsection()
+
 def getConfigSatlist(orbpos, satlist):
 	default_orbpos = None
 	for x in satlist:
@@ -1200,14 +1202,21 @@ def InitNimManager(nimmgr, update_slots = []):
 					section.lofh = ConfigInteger(default=int(productparameters.get("lofh", 10600)))
 					section.threshold = ConfigInteger(default=int(productparameters.get("threshold", 11700)))
 				def unicableProductChanged(manufacturer, lnb_or_matrix, configEntry):
+					config.unicable.unicableProduct.value = configEntry.value
+					config.unicable.unicableProduct.save()
 					productparameters = [p for p in [m.getchildren() for m in unicable_xml.find(lnb_or_matrix) if m.get("name") == manufacturer][0] if p.get("name") == configEntry.value][0]
 					srcfrequencylist = productparameters.get("scrs").split(",")
 					section.scrList = ConfigSelection([("%d" % (x + 1), "SCR %d (%s)" % ((x + 1), srcfrequencylist[x])) for x in range(len(srcfrequencylist))])
 					section.scrList.save_forced = True
 					section.scrList.addNotifier(boundFunction(scrListChanged, productparameters, srcfrequencylist))
 				def unicableManufacturerChanged(lnb_or_matrix, configEntry):
+					config.unicable.unicableManufacturer.value = configEntry.value
+					config.unicable.unicableManufacturer.save()
 					productslist = [p.get("name") for p in [m.getchildren() for m in unicable_xml.find(lnb_or_matrix) if m.get("name") == configEntry.value][0]]
-					section.unicableProduct = ConfigSelection(productslist)
+					if not config.unicable.content.items.get("unicableProduct", False) or config.unicable.unicableProduct.value not in productslist:
+						config.unicable.unicableProduct = ConfigSelection(productslist)
+					config.unicable.unicableProduct.save_forced = True
+					section.unicableProduct = ConfigSelection(productslist, default=config.unicable.unicableProduct.value)
 					section.unicableProduct.save_forced = True
 					section.unicableProduct.addNotifier(boundFunction(unicableProductChanged, configEntry.value, lnb_or_matrix))
 				def userScrListChanged(srcfrequencyList, configEntry):
@@ -1225,21 +1234,35 @@ def InitNimManager(nimmgr, update_slots = []):
 						1638, 1716, 1752, 1788, 1824, 1860, 1896, 1932, 1968, 2004, 2076, 2112, 2148) or (1284, 1400, 1516, 1632, 1748, 1864, 1980, 2096)
 					section.scrList.addNotifier(boundFunction(userScrListChanged, srcfrequencyList))
 				def unicableChanged(configEntry):
+					config.unicable.unicable.value = configEntry.value
+					config.unicable.unicable.save()
 					if configEntry.value == "unicable_matrix":
 						manufacturerlist = [m.get("name") for m in unicable_xml.find("matrix")]
-						section.unicableManufacturer = ConfigSelection(manufacturerlist)
+						if not config.unicable.content.items.get("unicableManufacturer", False) or config.unicable.unicableManufacturer.value not in manufacturerlist:
+							config.unicable.unicableManufacturer = ConfigSelection(manufacturerlist)
+						section.unicableManufacturer = ConfigSelection(manufacturerlist, default=config.unicable.unicableManufacturer.value)
+						section.unicableManufacturer.save_forced = True
+						config.unicable.unicableManufacturer.save_forced = True
 						section.unicableManufacturer.addNotifier(boundFunction(unicableManufacturerChanged, "matrix"))
 					elif configEntry.value == "unicable_lnb":
 						manufacturerlist = [m.get("name") for m in unicable_xml.find("lnb")]
-						section.unicableManufacturer = ConfigSelection(manufacturerlist)
+						if not config.unicable.content.items.get("unicableManufacturer", False) or config.unicable.unicableManufacturer.value not in manufacturerlist:
+							config.unicable.unicableManufacturer = ConfigSelection(manufacturerlist)
+						section.unicableManufacturer = ConfigSelection(manufacturerlist, default=config.unicable.unicableManufacturer.value)
 						section.unicableManufacturer.save_forced = True
+						config.unicable.unicableManufacturer.save_forced = True
 						section.unicableManufacturer.addNotifier(boundFunction(unicableManufacturerChanged, "lnb"))
 					else:
 						section.format = ConfigSelection([("unicable", _("Unicable")), ("jess", _("Jess"))])
 						section.format.addNotifier(formatChanged)
+					section.unicableManufacturer.save_forced = True
+					config.unicable.unicableManufacturer.save_forced = True
 
 				unicable_xml = xml.etree.cElementTree.parse(eEnv.resolve("${datadir}/enigma2/unicable.xml")).getroot()
-				section.unicable = ConfigSelection([("unicable_lnb", _("Unicable LNB")), ("unicable_matrix", _("Unicable Martix")), ("unicable_user", "Unicable "+_("User defined"))])
+				unicableList = [("unicable_lnb", _("Unicable LNB")), ("unicable_matrix", _("Unicable Martix")), ("unicable_user", "Unicable "+_("User defined"))]
+				if not config.unicable.content.items.get("unicable", False):
+					config.unicable.unicable = ConfigSelection(unicableList)
+				section.unicable = ConfigSelection(unicableList, default=config.unicable.unicable.value)
 				section.unicable.addNotifier(unicableChanged)
 
 				nim.advanced.unicableconnected = ConfigYesNo(default=False)
