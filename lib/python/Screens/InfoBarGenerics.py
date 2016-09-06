@@ -210,7 +210,7 @@ class InfoBarScreenSaver:
 
 class HideVBILine(Screen):
 	def __init__(self, session):
-		self.skin = """<screen position="0,0" size="%s,%s" backgroundColor="0" flags="wfNoBorder" zPosition="1"/>""" % (getDesktop(0).size().width() * 2/3, getDesktop(0).size().height() / 360 + 1)
+		self.skin = """<screen position="0,0" size="%s,%s" flags="wfNoBorder" zPosition="1"/>""" % (getDesktop(0).size().width(), getDesktop(0).size().height() / 360 + 1)
 		Screen.__init__(self, session)
 
 class SecondInfoBar(Screen):
@@ -225,6 +225,7 @@ class InfoBarShowHide(InfoBarScreenSaver):
 	STATE_HIDING = 1
 	STATE_SHOWING = 2
 	STATE_SHOWN = 3
+	FLAG_HIDE_VBI = 512
 
 	def __init__(self):
 		self["ShowHideActions"] = ActionMap( ["InfobarShowHideActions"] ,
@@ -398,25 +399,35 @@ class InfoBarShowHide(InfoBarScreenSaver):
 			self.startHideTimer()
 
 	def checkHideVBI(self):
-			service = self.session.nav.getCurrentlyPlayingServiceReference()
-			servicepath = service and service.getPath()
-			if servicepath and servicepath.startswith("/"):
-				if service.toString().startswith("1:"):
-					info = eServiceCenter.getInstance().info(service)
-					service = info and info.getInfoString(service, iServiceInformation.sServiceref)
-					FLAG_HIDE_VBI = 512
-					return service and eDVBDB.getInstance().getFlag(eServiceReference(service)) & FLAG_HIDE_VBI and True
-				else:
-					return ".hidvbi." in servicepath.lower()
-			service = self.session.nav.getCurrentService()
-			info = service and service.info()
-			return info and info.getInfo(iServiceInformation.sHideVBI)
+		service = self.session.nav.getCurrentlyPlayingServiceReference()
+		servicepath = service and service.getPath()
+		if servicepath and servicepath.startswith("/"):
+			if service.toString().startswith("1:"):
+				info = eServiceCenter.getInstance().info(service)
+				service = info and info.getInfoString(service, iServiceInformation.sServiceref)
+				return service and eDVBDB.getInstance().getFlag(eServiceReference(service)) & self.FLAG_HIDE_VBI and True
+			else:
+				return ".hidvbi." in servicepath.lower()
+		service = self.session.nav.getCurrentService()
+		info = service and service.info()
+		return info and info.getInfo(iServiceInformation.sHideVBI)
 
 	def showHideVBI(self):
 		if self.checkHideVBI():
 			self.hideVBILineScreen.show()
 		else:
 			self.hideVBILineScreen.hide()
+
+	def ToggleHideVBI(self):
+		service = self.session.nav.getCurrentlyPlayingServiceReference()
+		servicepath = service and service.getPath()
+		if not servicepath:
+			if eDVBDB.getInstance().getFlag(service) & self.FLAG_HIDE_VBI:
+				eDVBDB.getInstance().removeFlag(service, self.FLAG_HIDE_VBI)
+			else:
+				eDVBDB.getInstance().addFlag(service, self.FLAG_HIDE_VBI)
+			eDVBDB.getInstance().reloadBouquets()
+			self.showHideVBI()
 
 class BufferIndicator(Screen):
 	def __init__(self, session):
@@ -1688,8 +1699,9 @@ class InfoBarTimeshiftState(InfoBarPVRState):
 		InfoBarPVRState.__init__(self, screen=TimeshiftState, force_show=True)
 		self.timeshiftLiveScreen = self.session.instantiateDialog(TimeshiftLive)
 		self.onHide.append(self.timeshiftLiveScreen.hide)
-		self.secondInfoBarScreen and self.secondInfoBarScreen.onShow.append(self.timeshiftLiveScreen.hide)
-		self.secondInfoBarScreenSimple and self.secondInfoBarScreenSimple.onShow.append(self.timeshiftLiveScreen.hide)
+		if isStandardInfoBar(self):
+			self.secondInfoBarScreen and self.secondInfoBarScreen.onShow.append(self.timeshiftLiveScreen.hide)
+			self.secondInfoBarScreenSimple and self.secondInfoBarScreenSimple.onShow.append(self.timeshiftLiveScreen.hide)
 		self.timeshiftLiveScreen.hide()
 		self.__hideTimer = eTimer()
 		self.__hideTimer.callback.append(self.__hideTimeshiftState)
@@ -1697,10 +1709,11 @@ class InfoBarTimeshiftState(InfoBarPVRState):
 
 	def _mayShow(self):
 		if self.timeshiftEnabled():
-			if self.secondInfoBarScreen and self.secondInfoBarScreen.shown:
-				self.secondInfoBarScreen.hide()
-			if self.secondInfoBarScreenSimple and self.secondInfoBarScreenSimple.shown:
-				self.secondInfoBarScreenSimple.hide()
+			if isStandardInfoBar(self):
+				if self.secondInfoBarScreen and self.secondInfoBarScreen.shown:
+					self.secondInfoBarScreen.hide()
+				if self.secondInfoBarScreenSimple and self.secondInfoBarScreenSimple.shown:
+					self.secondInfoBarScreenSimple.hide()
 			if self.timeshiftActivated():
 				self.pvrStateDialog.show()
 				self.timeshiftLiveScreen.hide()
