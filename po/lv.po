@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: enigma2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-21 19:05+0300\n"
+"POT-Creation-Date: 2016-10-08 23:55+0300\n"
 "PO-Revision-Date: 2014-11-12 00:49+0200\n"
 "Last-Translator: Tapat <taapat@gmail.com>\n"
 "Language-Team: Taapat <taapat@gmail.com>\n"
@@ -289,9 +289,6 @@ msgstr[0] "%d bezvadu tīkls atrasts!"
 msgstr[1] "%d bezvadu tīkli atrasti!"
 msgstr[2] "%d bezvadu tīkli atrasti!"
 
-msgid "%d-%b-%Y %-H:%M"
-msgstr "%d-%b-%Y %-H:%M"
-
 msgid "%d-%m"
 msgstr "%d-%m"
 
@@ -524,6 +521,9 @@ msgstr ""
 "Ieraksts ir sācies:\n"
 "%s"
 
+msgid "A recording is currently running on the selected tuner. Please select a different tuner or consider to stop the recording to try again."
+msgstr "Pašreiz notiek ieraksts. Lūdzu izvēlieties citu uztvērēju vai apturiet ierakstu lai mēģinātu vēlreiz."
+
 msgid ""
 "A recording is currently running.\n"
 "What do you want to do?"
@@ -588,6 +588,15 @@ msgstr "AC3 dekodēšana"
 
 msgid "AGC:"
 msgstr "AGC:"
+
+msgid "ASS file"
+msgstr "ASS fails"
+
+msgid "ATSC"
+msgstr "ATSC"
+
+msgid "ATSC provider"
+msgstr "ATSC operators"
 
 msgid "Abort"
 msgstr "Atcelt"
@@ -1237,6 +1246,15 @@ msgstr "Kanāls:"
 msgid "Channellist menu"
 msgstr "Kanālu saraksta izvēlne"
 
+msgid "Channelnumber and picon"
+msgstr "Kanāla numurs un pikona"
+
+msgid "Channelnumber and servicename"
+msgstr "Kanāla numurs un nosaukums"
+
+msgid "Channelnumber, picon and servicename"
+msgstr "Kanāla numurs, pikona un kanāla nosaukums"
+
 msgid "Chap."
 msgstr "Nod."
 
@@ -1863,6 +1881,9 @@ msgstr "DTS dekodēšana"
 msgid "DUAL LAYER DVD"
 msgstr "Dubultslāņu DVD"
 
+msgid "DVB CI Delay"
+msgstr "DVB CI aizture"
+
 msgid "DVB drivers: "
 msgstr "Draiveri: "
 
@@ -1871,6 +1892,9 @@ msgstr "DVB subtitru melnā caurspīdīgums"
 
 msgid "DVB-C"
 msgstr "DVB-C"
+
+msgid "DVB-C ANNEX B"
+msgstr "DVB-C ANNEX B"
 
 msgid "DVB-C ANNEX C"
 msgstr "DVB-C ANNEX C"
@@ -2818,8 +2842,8 @@ msgid "From :"
 msgstr "No :"
 
 #, python-format
-msgid "Frontprocessor version: %d"
-msgstr "Frontprocesora versija: %d"
+msgid "Frontprocessor version: %s"
+msgstr "Frontprocesora versija: %s"
 
 msgid "Full transparency"
 msgstr "Pilnīgi caurspīdīgs"
@@ -4172,6 +4196,9 @@ msgstr "PCR PID"
 msgid "PDC"
 msgstr "PDC"
 
+msgid "PGS file"
+msgstr "PGS fails"
+
 msgid "PIDs"
 msgstr "PIDi"
 
@@ -4251,7 +4278,7 @@ msgstr "PiP iestatījumi"
 msgid "Picon"
 msgstr "Pikona"
 
-msgid "Picon and service name"
+msgid "Picon and servicename"
 msgstr "Pikona un kanāla nosaukums"
 
 msgid "Picture player"
@@ -4589,6 +4616,12 @@ msgstr "Katram kanālam saglabāt ieteicamos subtitrus"
 
 msgid "Preferred tuner"
 msgstr "Ieteicamais uztvērējs"
+
+msgid "Preferred tuner ATSC"
+msgstr "Ieteicamais ATSC uztvērējs"
+
+msgid "Preferred tuner ATSC for recordings"
+msgstr "Ieteicamais ATSC uztvērējs ierakstam"
 
 msgid "Preferred tuner DVB-C"
 msgstr "Ieteicamais DVB-C uztvērējs"
@@ -5145,6 +5178,12 @@ msgstr "SNR"
 msgid "SNR:"
 msgstr "SNR:"
 
+msgid "SRT file"
+msgstr "SRT fails"
+
+msgid "SSA file"
+msgstr "SSA fails"
+
 msgid "SSID:"
 msgstr "SSID:"
 
@@ -5497,9 +5536,6 @@ msgstr ""
 "Kanāls neeksistē!\n"
 "(PMT lasīšanas noildze)"
 
-msgid "Service name"
-msgstr "Kanāla nosaukums"
-
 msgid ""
 "Service not found!\n"
 "(SID not found in PAT)"
@@ -5525,6 +5561,9 @@ msgid ""
 msgstr ""
 "Kanāls nav pieejams!\n"
 "Pārbaudiet uztvērēja konfigurāciju!"
+
+msgid "Servicename"
+msgstr "Kanāla nosaukums"
 
 msgid "Services"
 msgstr "Kanāli"
@@ -6855,6 +6894,9 @@ msgstr "Pārslēgt TV/RADIO režīmu"
 msgid "Toggle a cut mark at the current position"
 msgstr "Iestatīt griešanas iezīmi pašreizējā pozīcijā"
 
+msgid "Toggle dashed flickering line for this service"
+msgstr "Mainīt mirgojošo līniju kanālam"
+
 msgid "Toggle infoBar"
 msgstr "Infojosla"
 
@@ -7216,6 +7258,9 @@ msgstr "VCR scart"
 
 msgid "VMGM (intro trailer)"
 msgstr "VMGM (ievada treileris)"
+
+msgid "VOB file"
+msgstr "VOB fails"
 
 msgid "VU+"
 msgstr "VU+"
@@ -8329,6 +8374,9 @@ msgstr "rediģēt alternatīvas"
 msgid "education/science/factual topics (general)"
 msgstr "izglītība/zinātne/faktiskās tēmas (vispārīgi)"
 
+msgid "embedded"
+msgstr "iekšējais"
+
 msgid "empty"
 msgstr "tukšs"
 
@@ -8706,6 +8754,9 @@ msgstr "no lietotā VIENSLĀŅA datu nesēja."
 
 msgid "off"
 msgstr "izslēgts"
+
+msgid "off or wpa2 on"
+msgstr "izslēgts vai ieslēgts wpa2"
 
 msgid "offset is"
 msgstr "kompensē"
